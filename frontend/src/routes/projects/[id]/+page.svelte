@@ -5,6 +5,7 @@
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import SystemInputForm from '$lib/components/project/SystemInputForm.svelte';
 	import AnalysisConfig from '$lib/components/project/AnalysisConfig.svelte';
+	import AnalysisResults from '$lib/components/project/AnalysisResults.svelte';
 
 	export let data;
 
@@ -17,6 +18,8 @@
 	let analysisStatus = 'idle'; // idle, running, completed, failed
 	let showInputForm = false;
 	let showAnalysisConfig = false;
+	let statusPollingInterval = null;
+	let analysisProgress = { phase: null, percentage: 0, message: '' };
 
 	$: projectId = $page.params.id;
 
@@ -25,6 +28,17 @@
 		await loadProject();
 		await loadSystemInputs();
 		await checkAnalysisStatus();
+		
+		// Start polling if analysis is running
+		if (analysisStatus === 'running') {
+			startStatusPolling();
+		}
+		
+		return () => {
+			if (statusPollingInterval) {
+				clearInterval(statusPollingInterval);
+			}
+		};
 	});
 
 	async function loadProject() {
@@ -64,12 +78,43 @@
 			if (response.ok) {
 				const data = await response.json();
 				analysisStatus = data.status || 'idle';
+				
+				// Update progress information if available
+				if (data.progress) {
+					analysisProgress = {
+						phase: data.progress.current_phase || null,
+						percentage: data.progress.percentage || 0,
+						message: data.progress.message || ''
+					};
+				}
+				
+				// Handle status changes
 				if (analysisStatus === 'completed') {
+					stopStatusPolling();
 					await loadAnalysisResults();
+				} else if (analysisStatus === 'running') {
+					startStatusPolling();
+				} else if (analysisStatus === 'failed') {
+					stopStatusPolling();
 				}
 			}
 		} catch (err) {
 			console.error('Failed to check analysis status:', err);
+		}
+	}
+	
+	function startStatusPolling() {
+		if (statusPollingInterval) return; // Already polling
+		
+		statusPollingInterval = setInterval(async () => {
+			await checkAnalysisStatus();
+		}, 2000); // Poll every 2 seconds
+	}
+	
+	function stopStatusPolling() {
+		if (statusPollingInterval) {
+			clearInterval(statusPollingInterval);
+			statusPollingInterval = null;
 		}
 	}
 
@@ -347,11 +392,15 @@
 									</p>
 								{/if}
 							{:else if analysisStatus === 'running'}
-								<div class="space-y-4">
-									<div class="animate-spin mx-auto h-8 w-8 border-2 border-purple-600 border-t-transparent rounded-full"></div>
-									<p class="text-sm text-gray-500 dark:text-gray-400">Analysis in progress...</p>
-								</div>
-							{:else if analysisStatus === 'completed'}
+									<div class="space-y-4">
+										<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+											<div class="bg-purple-600 h-2.5 rounded-full" style="width: {analysisProgress.percentage}%"></div>
+										</div>
+										<p class="text-sm text-gray-500 dark:text-gray-400">
+											{analysisProgress.phase}: {analysisProgress.message} ({analysisProgress.percentage.toFixed(0)}%)
+										</p>
+									</div>
+								{:else if analysisStatus === 'completed'}
 								<button
 									class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium"
 									on:click={() => activeTab = 'results'}
@@ -363,28 +412,7 @@
 					</div>
 				{:else if activeTab === 'results'}
 					<!-- Results Tab -->
-					<div class="text-center py-12">
-						<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20">
-							<svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-							</svg>
-						</div>
-						<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Analysis Results</h3>
-						{#if analysisResults}
-							<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-								Analysis completed with {analysisResults.threats_found || 0} threats identified
-							</p>
-							<div class="mt-6">
-								<button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
-									Download Report
-								</button>
-							</div>
-						{:else}
-							<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-								No analysis results available yet. Run an analysis to see results.
-							</p>
-						{/if}
-					</div>
+					<AnalysisResults {analysisResults} />
 				{/if}
 			</div>
 		</div>
