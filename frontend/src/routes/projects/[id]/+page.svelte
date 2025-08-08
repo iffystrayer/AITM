@@ -4,6 +4,7 @@
 	import { currentPage } from '$lib/stores';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import SystemInputForm from '$lib/components/project/SystemInputForm.svelte';
+	import AnalysisConfig from '$lib/components/project/AnalysisConfig.svelte';
 
 	export let data;
 
@@ -15,6 +16,7 @@
 	let analysisResults = null;
 	let analysisStatus = 'idle'; // idle, running, completed, failed
 	let showInputForm = false;
+	let showAnalysisConfig = false;
 
 	$: projectId = $page.params.id;
 
@@ -334,7 +336,7 @@
 							{#if analysisStatus === 'idle'}
 								<button
 									class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium"
-									on:click={() => {/* Will implement analysis start */}}
+									on:click={() => showAnalysisConfig = true}
 									disabled={systemInputs.length === 0}
 								>
 									Start Threat Analysis
@@ -392,5 +394,15 @@
 		bind:show={showInputForm} 
 		projectId={project.id} 
 		on:inputAdded={loadSystemInputs}
+	/>
+
+	<AnalysisConfig 
+		bind:show={showAnalysisConfig} 
+		projectId={project.id} 
+		systemInputs={systemInputs}
+		on:analysisStarted={(e) => {
+			analysisStatus = 'running';
+			setTimeout(() => checkAnalysisStatus(), 1000);
+		}}
 	/>
 {/if}
