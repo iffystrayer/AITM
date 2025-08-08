@@ -3,6 +3,7 @@ Test Suite for Enhanced MITRE ATT&CK Service
 """
 
 import pytest
+import pytest_asyncio
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 import json
@@ -14,7 +15,7 @@ from app.services.enhanced_mitre_service import EnhancedMitreService, get_enhanc
 class TestEnhancedMitreService:
     """Test Enhanced MITRE ATT&CK Service"""
     
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def mitre_service(self):
         """Create a fresh MITRE service instance for testing"""
         service = EnhancedMitreService()

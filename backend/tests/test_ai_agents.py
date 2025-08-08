@@ -118,8 +118,8 @@ class TestAttackMapperAgent:
                         
                         # Assertions
                         assert response.status == "success"
-                        assert response.result['techniques_count'] == 1
-                        assert response.result['attack_paths_count'] == 1
+                        assert response.output_data['techniques_count'] == 1
+                        assert response.output_data['attack_paths_count'] == 1
                         assert response.confidence_score == 0.80
     
     @pytest.mark.asyncio
@@ -143,7 +143,7 @@ class TestAttackMapperAgent:
             response = await attack_mapper_agent.process_task(task)
             
             assert response.status == "failure"
-            assert "No system assets or technologies identified" in response.result['error']
+            assert "No system assets or technologies identified" in response.output_data['error']
     
     @pytest.mark.asyncio
     async def test_process_task_llm_failure(self, attack_mapper_agent, sample_context):
@@ -165,7 +165,7 @@ class TestAttackMapperAgent:
                     response = await attack_mapper_agent.process_task(task)
                     
                     assert response.status == "failure"
-                    assert "LLM request failed" in response.result['error']
+                    assert "LLM request failed" in response.output_data['error']
 
 
 class TestControlEvaluationAgent:
@@ -263,8 +263,8 @@ class TestControlEvaluationAgent:
                         response = await control_agent.process_task(task)
                         
                         assert response.status == "success"
-                        assert response.result['techniques_assessed'] == 1
-                        assert response.result['gaps_identified'] == 1
+                        assert response.output_data['techniques_assessed'] == 1
+                        assert response.output_data['gaps_identified'] == 1
                         assert response.confidence_score == 0.75
     
     @pytest.mark.asyncio
@@ -283,7 +283,7 @@ class TestControlEvaluationAgent:
             response = await control_agent.process_task(task)
             
             assert response.status == "failure"
-            assert "No attack paths identified" in response.result['error']
+            assert "No attack paths identified" in response.output_data['error']
 
 
 class TestReportGenerationAgent:
@@ -451,9 +451,9 @@ class TestReportGenerationAgent:
                         response = await report_agent.process_task(task)
                         
                         assert response.status == "success"
-                        assert 'report' in response.result
-                        assert response.result['report_summary']['risk_level'] == 'medium'
-                        assert response.result['report_summary']['techniques_analyzed'] == 2
+                        assert 'report' in response.output_data
+                        assert response.output_data['report_summary']['risk_level'] == 'medium'
+                        assert response.output_data['report_summary']['techniques_analyzed'] == 2
                         assert response.confidence_score == 0.88
     
     @pytest.mark.asyncio
@@ -477,7 +477,7 @@ class TestReportGenerationAgent:
             response = await report_agent.process_task(task)
             
             assert response.status == "failure"
-            assert "Insufficient analysis data" in response.result['error']
+            assert "Insufficient analysis data" in response.output_data['error']
     
     def test_count_unique_techniques(self, report_agent):
         """Test unique technique counting"""
