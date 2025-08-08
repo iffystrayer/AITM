@@ -183,12 +183,39 @@ class ApiService {
 		return response.data;
 	}
 
-	// Long-running operations with polling
-	async pollAnalysisStatus(projectId: number, onUpdate?: (status: ThreatModelingStatus) => void): Promise<ThreatModelingStatus> {
+	// New Analysis Endpoints
+	async startAnalysis(projectId: number, analysisConfig: AnalysisStartRequest): Promise<ApiResponse<AnalysisStartResponse>> {
+		const response = await this.client.post(`/projects/${projectId}/analysis/start`, analysisConfig);
+		return response.data;
+	}
+
+	async getAnalysisStatus(projectId: number): Promise<ApiResponse<AnalysisStatusResponse>> {
+		const response = await this.client.get(`/projects/${projectId}/analysis/status`);
+		return response.data;
+	}
+
+	async getAnalysisResults(projectId: number): Promise<ApiResponse<AnalysisResultsResponse>> {
+		const response = await this.client.get(`/projects/${projectId}/analysis/results`);
+		return response.data;
+	}
+
+	// System Input Management (updated endpoint)
+	async getProjectInputs(projectId: number): Promise<ApiResponse<SystemInput[]>> {
+		const response = await this.client.get(`/projects/${projectId}/inputs`);
+		return response.data;
+	}
+
+	async addProjectInput(projectId: number, inputData: SystemInputRequest): Promise<ApiResponse<{ message: string; input_id: number }>> {
+		const response = await this.client.post(`/projects/${projectId}/inputs`, inputData);
+		return response.data;
+	}
+
+	// Analysis polling with new endpoints
+	async pollAnalysisStatus(projectId: number, onUpdate?: (status: AnalysisStatusResponse) => void): Promise<AnalysisStatusResponse> {
 		return new Promise((resolve, reject) => {
 			const pollInterval = setInterval(async () => {
 				try {
-					const statusResponse = await this.getThreatModelingStatus(projectId);
+					const statusResponse = await this.getAnalysisStatus(projectId);
 					const status = statusResponse.data;
 					
 					if (onUpdate) {
@@ -205,6 +232,26 @@ class ApiService {
 				}
 			}, 2000); // Poll every 2 seconds
 		});
+	}
+
+	// Legacy threat modeling methods for backwards compatibility
+	async getThreatModelingStatus(projectId: number): Promise<ApiResponse<ThreatModelingStatus>> {
+		// Map new analysis status to old format
+		const statusResponse = await this.getAnalysisStatus(projectId);
+		const newStatus = statusResponse.data;
+		
+		return {
+			data: {
+				project_id: newStatus.project_id,
+				status: newStatus.status as any,
+				attack_paths_count: 0, // Would need to fetch from results
+				recommendations_count: 0, // Would need to fetch from results
+				last_updated: newStatus.started_at || '',
+				progress: newStatus.progress?.percentage || 0,
+				current_step: newStatus.progress?.message || ''
+			},
+			success: true
+		};
 	}
 }
 
@@ -324,6 +371,102 @@ export interface CreateAssetRequest {
 	criticality: 'high' | 'medium' | 'low';
 	description?: string;
 	technologies?: string[];
+}
+
+// New Analysis API Types
+export interface AnalysisStartRequest {
+	project_id: number;
+	input_ids: number[];
+	config: {
+		analysis_depth?: 'quick' | 'standard' | 'deep';
+		include_threat_modeling?: boolean;
+		include_mitigations?: boolean;
+		include_compliance_check?: boolean;
+		priority_level?: 'low' | 'medium' | 'high';
+	};
+}
+
+export interface AnalysisStartResponse {
+	project_id: number;
+	status: string;
+	message: string;
+	started_at: string;
+}
+
+export interface AnalysisProgress {
+	current_phase?: string;
+	percentage: number;
+	message?: string;
+}
+
+export interface AnalysisStatusResponse {
+	project_id: number;
+	status: 'idle' | 'running' | 'completed' | 'failed';
+	progress?: AnalysisProgress;
+	started_at?: string;
+	completed_at?: string;
+	error_message?: string;
+}
+
+export interface ExecutiveSummary {
+	overview: string;
+	key_findings: string[];
+	priority_actions: string[];
+	risk_level: string;
+	business_impact?: string;
+}
+
+export interface AttackPathStep {
+	step: number;
+	technique_id: string;
+	technique_name: string;
+	tactic: string;
+	target_component: string;
+	description?: string;
+}
+
+export interface AttackPathResult {
+	name: string;
+	description: string;
+	impact: 'low' | 'medium' | 'high' | 'critical';
+	likelihood: 'low' | 'medium' | 'high' | 'critical';
+	techniques: AttackPathStep[];
+}
+
+export interface IdentifiedTechnique {
+	technique_id: string;
+	technique_name: string;
+	tactic: string;
+	applicability_score: number;
+	system_component?: string;
+	rationale?: string;
+	prerequisites: string[];
+}
+
+export interface SecurityRecommendation {
+	title: string;
+	description: string;
+	priority: 'low' | 'medium' | 'high' | 'urgent';
+	attack_technique?: string;
+	affected_assets: string[];
+	implementation_effort?: string;
+	cost_estimate?: string;
+	timeline?: string;
+}
+
+export interface AnalysisResultsResponse {
+	project_id: number;
+	overall_risk_score: number;
+	confidence_score: number;
+	executive_summary?: ExecutiveSummary;
+	attack_paths: AttackPathResult[];
+	identified_techniques: IdentifiedTechnique[];
+	recommendations: SecurityRecommendation[];
+	system_analysis_results: Record<string, any>[];
+	control_evaluation_results: Record<string, any>[];
+	full_report?: Record<string, any>;
+	created_at: string;
+	updated_at: string;
 }
 
 export interface ThreatModelReport {

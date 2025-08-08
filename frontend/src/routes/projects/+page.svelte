@@ -14,10 +14,11 @@
 	async function loadProjects() {
 		try {
 			loading = true;
-		const response = await fetch('http://127.0.0.1:38527/api/v1/projects/');
+			const response = await fetch('http://localhost:38527/api/v1/projects/');
 			if (response.ok) {
 				const data = await response.json();
-				projects = data.data || [];
+				// API returns direct array, not wrapped in data property
+				projects = Array.isArray(data) ? data : [];
 				error = null;
 			} else {
 				error = 'Failed to load projects';
@@ -35,8 +36,8 @@
 			return;
 		}
 
-		try {
-		const response = await fetch('http://127.0.0.1:38527/api/v1/projects/', {
+	try {
+			const response = await fetch('http://localhost:38527/api/v1/projects/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -62,8 +63,8 @@
 			return;
 		}
 
-		try {
-		const response = await fetch(`http://127.0.0.1:38527/api/v1/projects/${projectId}`, {
+	try {
+			const response = await fetch(`http://localhost:38527/api/v1/projects/${projectId}`, {
 				method: 'DELETE'
 			});
 
