@@ -1,21 +1,29 @@
 <script>
 	import { onMount } from 'svelte';
-	
+	import { currentPage } from '$lib/stores';
+
 	let backendStatus = 'checking...';
+	let isLoading = true;
 	let apiResponse = null;
 
 	onMount(async () => {
+		// Set current page for navigation
+		currentPage.set('dashboard');
+
 		try {
+			// Test backend connectivity with direct fetch
 			const response = await fetch('http://127.0.0.1:38527/health');
 			if (response.ok) {
 				apiResponse = await response.json();
-				backendStatus = '✅ Connected';
+				backendStatus = `✅ Backend Online (${apiResponse.status})`;
 			} else {
-				backendStatus = '❌ Error';
+				backendStatus = '❌ Backend not responding';
 			}
 		} catch (error) {
-			backendStatus = '❌ Not Connected';
+			backendStatus = '❌ Backend connection failed';
 			console.error('Backend connection error:', error);
+		} finally {
+			isLoading = false;
 		}
 	});
 </script>

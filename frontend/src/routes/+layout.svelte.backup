@@ -1,0 +1,118 @@
+<script>
+	import { onMount } from 'svelte';
+	import { applyTheme, getThemePreference } from '$lib/utils';
+	import Sidebar from '$lib/components/Sidebar.svelte';
+	import Header from '$lib/components/Header.svelte';
+	import NotificationToast from '$lib/components/NotificationToast.svelte';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import { sidebarOpen, isLoading, healthStatus } from '$lib/stores';
+	import '../app.css';
+
+	onMount(async () => {
+		// Apply theme preference (browser only)
+		if (typeof window !== 'undefined') {
+			const theme = getThemePreference();
+			applyTheme(theme);
+		}
+
+		// Check backend health with simple fetch
+		try {
+			const response = await fetch('http://127.0.0.1:38527/health');
+			if (response.ok) {
+				const health = await response.json();
+				healthStatus.set({ status: health.status || 'unknown', timestamp: new Date().toISOString(), version: health.version || 'unknown' });
+			} else {
+				healthStatus.set({ status: 'unhealthy', timestamp: new Date().toISOString(), version: 'unknown' });
+			}
+		} catch (error) {
+			console.warn('Backend health check failed:', error);
+			healthStatus.set({ status: 'unhealthy', timestamp: new Date().toISOString(), version: 'unknown' });
+		}
+	});
+</script>
+
+<div class="app-container">
+	<!-- Sidebar -->
+	<Sidebar />
+
+	<!-- Main Content Area -->
+	<div class="main-content" class:sidebar-open={$sidebarOpen}>
+		<!-- Header -->
+		<Header />
+
+		<!-- Page Content -->
+		<main class="page-content">
+			<slot />
+		</main>
+	</div>
+
+	<!-- Global Loading Spinner -->
+	{#if $isLoading}
+		<div class="loading-overlay">
+			<LoadingSpinner size="large" />
+		</div>
+	{/if}
+
+	<!-- Notification Toast -->
+	<NotificationToast />
+</div>
+
+<style>
+	.app-container {
+		display: flex;
+		height: 100vh;
+		background-color: #f9fafb;
+	}
+
+	.main-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		transition: margin-left 0.3s ease-in-out;
+	}
+
+	.main-content.sidebar-open {
+		margin-left: 0;
+	}
+
+	.page-content {
+		flex: 1;
+		padding: 1.5rem;
+		overflow-y: auto;
+		background-color: #f9fafb;
+	}
+
+	.loading-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 9999;
+	}
+
+	/* Dark theme adjustments */
+	:global(.dark) .app-container {
+		background-color: #111827;
+	}
+
+	:global(.dark) .page-content {
+		background-color: #111827;
+	}
+
+	/* Mobile responsiveness */
+	@media (max-width: 768px) {
+		.main-content {
+			margin-left: 0;
+		}
+
+		.page-content {
+			padding: 1rem;
+		}
+	}
+</style>
