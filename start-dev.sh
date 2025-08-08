@@ -29,15 +29,14 @@ fi
 # Activate virtual environment
 source venv/bin/activate
 
-# Install dependencies
+# Install dependencies with smart installer
 echo "📦 Installing backend dependencies..."
-pip install -r requirements.txt
+python3 install_deps.py
 
 # Start backend server
 echo "🚀 Starting backend server on port 38527..."
-cd app && python main.py &
+python -m app.main &
 BACKEND_PID=$!
-cd ..
 
 # Go back to root and start frontend
 cd ../frontend

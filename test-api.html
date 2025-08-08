@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AITM API Test</title>
+</head>
+<body>
+    <h1>AITM API Connection Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        async function testAPI() {
+            const tests = [
+                { name: 'Root Endpoint', url: 'http://127.0.0.1:38527/' },
+                { name: 'Health Check', url: 'http://127.0.0.1:38527/health' },
+                { name: 'API Docs', url: 'http://127.0.0.1:38527/docs' }
+            ];
+
+            for (const test of tests) {
+                try {
+                    console.log(`Testing ${test.name}...`);
+                    const response = await fetch(test.url);
+                    const data = await response.json();
+                    resultsDiv.innerHTML += `<p style="color: green;">✅ ${test.name}: ${response.status} - ${JSON.stringify(data)}</p>`;
+                } catch (error) {
+                    console.error(`${test.name} failed:`, error);
+                    resultsDiv.innerHTML += `<p style="color: red;">❌ ${test.name}: ${error.message}</p>`;
+                }
+            }
+        }
+
+        // Run tests when page loads
+        testAPI();
+    </script>
+</body>
+</html>

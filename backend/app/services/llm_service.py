@@ -3,15 +3,29 @@ LLM Service with dynamic provider selection
 """
 
 import logging
+import os
 import asyncio
 from typing import Optional, Dict, Any, List
 from abc import ABC, abstractmethod
 
 import openai
 import google.generativeai as genai
-import ollama
-import litellm
 from langsmith import traceable
+
+# Optional imports
+try:
+    import ollama
+    OLLAMA_AVAILABLE = True
+except ImportError:
+    OLLAMA_AVAILABLE = False
+    ollama = None
+
+try:
+    import litellm
+    LITELLM_AVAILABLE = True
+except ImportError:
+    LITELLM_AVAILABLE = False
+    litellm = None
 
 from app.core.config import get_settings
 
@@ -20,8 +34,20 @@ settings = get_settings()
 
 # Configure LLM providers
 if settings.langsmith_api_key and settings.langsmith_tracing:
-    import langsmith
-    langsmith.init(api_key=settings.langsmith_api_key, project=settings.langsmith_project)
+    try:
+        import langsmith
+        # LangSmith is optional and may not have the init method in all versions
+        if hasattr(langsmith, 'configure'):
+            langsmith.configure(api_key=settings.langsmith_api_key, project=settings.langsmith_project)
+        elif hasattr(langsmith, 'init'):
+            langsmith.init(api_key=settings.langsmith_api_key, project=settings.langsmith_project)
+        else:
+            # Alternative setup for LangSmith
+            os.environ["LANGCHAIN_API_KEY"] = settings.langsmith_api_key
+            os.environ["LANGCHAIN_PROJECT"] = settings.langsmith_project
+            os.environ["LANGCHAIN_TRACING_V2"] = "true"
+    except Exception as e:
+        logger.warning(f"Failed to initialize LangSmith: {e}")
 
 
 class LLMProvider(ABC):
@@ -198,10 +224,17 @@ class LLMService:
     def __init__(self):
         self.providers = {
             "openai": OpenAIProvider(),
-            "google": GoogleProvider(),
-            "ollama": OllamaProvider(),
-            "litellm": LiteLLMProvider()
+            "google": GoogleProvider()
         }
+        
+        # Only add Ollama if the package is available
+        if OLLAMA_AVAILABLE:
+            self.providers["ollama"] = OllamaProvider()
+            
+        # Only add LiteLLM if the package is available
+        if LITELLM_AVAILABLE:
+            self.providers["litellm"] = LiteLLMProvider()
+        
         self.default_provider = settings.default_llm_provider
     
     def get_available_providers(self) -> List[str]:

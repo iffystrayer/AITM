@@ -35,7 +35,7 @@ class ProjectResponse(ProjectBase):
 
 # System Input Schemas
 class SystemInputCreate(BaseModel):
-    input_type: str = Field(..., regex="^(text|json|file)$")
+    input_type: str = Field(..., pattern="^(text|json|file)$")
     content: str
     filename: Optional[str] = None
 
@@ -51,8 +51,8 @@ class SystemInputResponse(SystemInputCreate):
 
 # Threat Modeling Schemas
 class ThreatModelingRequest(BaseModel):
-    llm_provider: Optional[str] = Field(None, regex="^(openai|google|ollama|litellm)$")
-    analysis_depth: Optional[str] = Field("standard", regex="^(quick|standard|deep)$")
+    llm_provider: Optional[str] = Field(None, pattern="^(openai|google|ollama|litellm)$")
+    analysis_depth: Optional[str] = Field("standard", pattern="^(quick|standard|deep)$")
     include_mitigations: bool = True
     custom_instructions: Optional[str] = None
 
@@ -92,9 +92,9 @@ class AttackPathResponse(AttackPathCreate):
 class RecommendationCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     description: str
-    priority: str = Field(..., regex="^(high|medium|low)$")
+    priority: str = Field(..., pattern="^(high|medium|low)$")
     attack_technique: Optional[str] = None
-    status: str = Field("proposed", regex="^(proposed|accepted|implemented)$")
+    status: str = Field("proposed", pattern="^(proposed|accepted|implemented)$")
 
 
 class RecommendationResponse(RecommendationCreate):
@@ -110,7 +110,7 @@ class RecommendationResponse(RecommendationCreate):
 class AssetCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     asset_type: str = Field(..., max_length=100)
-    criticality: str = Field(..., regex="^(high|medium|low)$")
+    criticality: str = Field(..., pattern="^(high|medium|low)$")
     description: Optional[str] = None
     technologies: Optional[List[str]] = None
 
@@ -147,7 +147,7 @@ class AgentTask(BaseModel):
 class AgentResponse(BaseModel):
     task_id: str
     agent_type: str
-    status: str = Field(..., regex="^(success|failure|partial)$")
+    status: str = Field(..., pattern="^(success|failure|partial)$")
     output_data: Dict[str, Any]
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     execution_time: float

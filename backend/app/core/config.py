@@ -4,9 +4,10 @@ Configuration settings for AITM application
 
 import os
 from functools import lru_cache
-from typing import List, Optional
+from typing import List, Optional, Union, Annotated
 
-from pydantic import BaseSettings, validator
+from pydantic import field_validator, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -25,20 +26,23 @@ class Settings(BaseSettings):
     frontend_port: int = 41241
     
     # Security
-    jwt_secret_key: str
+    jwt_secret_key: str = "your-super-secret-jwt-key-change-this-in-production"
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 30
     
-    # CORS
+    # CORS  
     cors_origins: List[str] = [
         "http://localhost:41241",
-        "http://127.0.0.1:41241"
+        "http://127.0.0.1:41241", 
+        "http://0.0.0.0:41241",
+        "http://frontend:41241"
     ]
     
     # LLM Providers
     openai_api_key: Optional[str] = None
     google_api_key: Optional[str] = None
     ollama_base_url: str = "http://localhost:11434"
+    litellm_base_url: str = "http://localhost:8000"
     litellm_api_key: Optional[str] = None
     default_llm_provider: str = "google"
     
@@ -51,22 +55,29 @@ class Settings(BaseSettings):
     mitre_attack_version: str = "14.1"
     mitre_attack_data_url: str = "https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json"
     
-    @validator("cors_origins", pre=True)
-    def parse_cors_origins(cls, v):
+    @field_validator("cors_origins")
+    @classmethod
+    def parse_cors_origins(cls, v) -> List[str]:
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
-        return v
+        if isinstance(v, list):
+            return v
+        return []
     
-    @validator("jwt_secret_key")
+    @field_validator("jwt_secret_key")
+    @classmethod
     def validate_jwt_secret_key(cls, v):
         if not v or v == "your-super-secret-jwt-key-change-this-in-production":
             if os.getenv("ENVIRONMENT", "development") == "production":
                 raise ValueError("JWT_SECRET_KEY must be set in production")
         return v
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = {
+        "env_file": ".env",
+        "case_sensitive": False,
+        "env_parse_none_str": False,
+        "env_parse_enums": False
+    }
 
 
 @lru_cache()

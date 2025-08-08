@@ -7,22 +7,24 @@ services:
       dockerfile: Dockerfile
     ports:
       - "38527:38527"
-    environment:
-      - DATABASE_URL=sqlite:///./data/aitm.db
-      - BACKEND_PORT=38527
-      - FRONTEND_PORT=41241
-      - JWT_SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
-      - DEFAULT_LLM_PROVIDER=google
-      - ENVIRONMENT=development
-      - LOG_LEVEL=INFO
-      - CORS_ORIGINS=http://localhost:41241,http://127.0.0.1:41241
     volumes:
-      - ./backend/data:/app/data
+      - ./backend:/app
+      - backend-data:/app/data
+      # Mount .env file
       - ./.env:/app/.env:ro
-    depends_on:
-      - frontend
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
     networks:
       - aitm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:38527/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
 
   frontend:
     build:
@@ -30,15 +32,28 @@ services:
       dockerfile: Dockerfile
     ports:
       - "41241:41241"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     environment:
-      - NODE_ENV=production
-      - VITE_API_BASE_URL=http://127.0.0.1:38527/api/v1
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:38527/api/v1
     networks:
       - aitm-network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:41241/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  backend-data:
+    driver: local
 
 networks:
   aitm-network:
     driver: bridge
-
-volumes:
-  aitm-data:

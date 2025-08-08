@@ -59,10 +59,15 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS
+# Configure CORS - permissive for development
+if settings.environment == "development":
+    cors_origins = ["*"]  # Allow all origins in development
+else:
+    cors_origins = settings.cors_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
@@ -118,7 +123,7 @@ if __name__ == "__main__":
     
     uvicorn.run(
         "app.main:app",
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=port,
         reload=True,
         log_level="info"
