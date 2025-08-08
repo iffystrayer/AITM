@@ -1,0 +1,18 @@
+# Report Generation Dependencies
+weasyprint==60.2              # PDF generation from HTML
+matplotlib==3.8.2             # Chart generation 
+seaborn==0.13.0               # Statistical data visualization
+pandas==2.1.4                 # Data manipulation for charts
+numpy==1.26.2                 # Numerical computing for charts
+python-docx==1.1.0            # DOCX document generation
+Pillow==10.1.0                # Image processing support
+plotly==5.17.0                # Interactive charts (optional)
+kaleido==0.2.1                # Static image export for plotly
+croniter==2.0.1               # Cron expression parsing
+jinja2==3.1.2                 # Template engine for reports
+python-multipart==0.0.6      # File upload support
+aiofiles==23.2.1              # Async file operations
+
+# Optional email dependencies for report delivery
+aiosmtplib==3.0.1             # Async SMTP client
+email-validator==2.1.0.post1  # Email validation

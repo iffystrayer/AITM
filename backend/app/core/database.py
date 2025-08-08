@@ -42,6 +42,8 @@ class Project(Base):
     assets = relationship("Asset", back_populates="project")
     attack_paths = relationship("AttackPath", back_populates="project")
     recommendations = relationship("Recommendation", back_populates="project")
+    analysis_state = relationship("AnalysisState", back_populates="project", uselist=False)
+    analysis_results = relationship("AnalysisResults", back_populates="project", uselist=False)
 
 
 class SystemInput(Base):
@@ -107,6 +109,49 @@ class Recommendation(Base):
     
     # Relationships
     project = relationship("Project", back_populates="recommendations")
+
+
+class AnalysisState(Base):
+    """Analysis state tracking for threat modeling projects"""
+    __tablename__ = "analysis_states"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), unique=True)
+    status = Column(String(50), default="idle")  # idle, running, completed, failed
+    current_phase = Column(String(100))  # system_analysis, attack_mapping, control_evaluation, report_generation
+    progress_percentage = Column(Float, default=0.0)
+    progress_message = Column(String(500))
+    started_at = Column(DateTime)
+    completed_at = Column(DateTime)
+    error_message = Column(Text)
+    configuration = Column(Text)  # JSON string of analysis configuration
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    project = relationship("Project", back_populates="analysis_state")
+
+
+class AnalysisResults(Base):
+    """Analysis results for threat modeling projects"""
+    __tablename__ = "analysis_results"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), unique=True)
+    overall_risk_score = Column(Float)
+    confidence_score = Column(Float)
+    executive_summary = Column(Text)  # JSON string
+    system_analysis_results = Column(Text)  # JSON string
+    identified_techniques = Column(Text)  # JSON string
+    attack_paths_data = Column(Text)  # JSON string
+    control_evaluation_results = Column(Text)  # JSON string
+    recommendations_data = Column(Text)  # JSON string
+    full_report = Column(Text)  # JSON string
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    project = relationship("Project", back_populates="analysis_results")
 
 
 class MitreAttack(Base):

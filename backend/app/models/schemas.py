@@ -166,3 +166,99 @@ class SharedContext(BaseModel):
     control_evaluation_results: List[Dict[str, Any]] = []
     mitigation_recommendations: List[Dict[str, Any]] = []
     last_updated: datetime = Field(default_factory=datetime.utcnow)
+
+
+# Analysis-related Schemas
+class AnalysisStartRequest(BaseModel):
+    project_id: int
+    input_ids: List[int]
+    config: Dict[str, Any] = {
+        "analysis_depth": "standard",
+        "include_threat_modeling": True,
+        "include_mitigations": True,
+        "include_compliance_check": False,
+        "priority_level": "high"
+    }
+
+
+class AnalysisProgress(BaseModel):
+    current_phase: Optional[str] = None
+    percentage: float = 0.0
+    message: Optional[str] = None
+
+
+class AnalysisStatusResponse(BaseModel):
+    project_id: int
+    status: str  # idle, running, completed, failed
+    progress: Optional[AnalysisProgress] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    error_message: Optional[str] = None
+
+
+class AnalysisStartResponse(BaseModel):
+    project_id: int
+    status: str
+    message: str
+    started_at: datetime
+
+
+class ExecutiveSummary(BaseModel):
+    overview: str
+    key_findings: List[str] = []
+    priority_actions: List[str] = []
+    risk_level: str
+    business_impact: Optional[str] = None
+
+
+class AttackPathStep(BaseModel):
+    step: int
+    technique_id: str
+    technique_name: str
+    tactic: str
+    target_component: str
+    description: Optional[str] = None
+
+
+class AttackPathResult(BaseModel):
+    name: str
+    description: str
+    impact: str  # low, medium, high, critical
+    likelihood: str  # low, medium, high, critical
+    techniques: List[AttackPathStep] = []
+
+
+class IdentifiedTechnique(BaseModel):
+    technique_id: str
+    technique_name: str
+    tactic: str
+    applicability_score: float
+    system_component: Optional[str] = None
+    rationale: Optional[str] = None
+    prerequisites: List[str] = []
+
+
+class SecurityRecommendation(BaseModel):
+    title: str
+    description: str
+    priority: str  # low, medium, high, urgent
+    attack_technique: Optional[str] = None
+    affected_assets: List[str] = []
+    implementation_effort: Optional[str] = None
+    cost_estimate: Optional[str] = None
+    timeline: Optional[str] = None
+
+
+class AnalysisResultsResponse(BaseModel):
+    project_id: int
+    overall_risk_score: float
+    confidence_score: float
+    executive_summary: Optional[ExecutiveSummary] = None
+    attack_paths: List[AttackPathResult] = []
+    identified_techniques: List[IdentifiedTechnique] = []
+    recommendations: List[SecurityRecommendation] = []
+    system_analysis_results: List[Dict[str, Any]] = []
+    control_evaluation_results: List[Dict[str, Any]] = []
+    full_report: Optional[Dict[str, Any]] = None
+    created_at: datetime
+    updated_at: datetime

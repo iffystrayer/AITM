@@ -364,6 +364,64 @@ class SystemAnalystAgent:
         
         return min(score / max_score, 1.0)
     
+    async def process_task(self, task) -> Any:
+        """Process an agent task - compatibility method for workflow integration"""
+        from ..models.schemas import AgentResponse
+        from ..agents.shared_context import SharedContext
+        
+        try:
+            # Extract task data
+            task_data = task.input_data
+            project_id = task_data.get("project_id")
+            input_ids = task_data.get("input_ids", [])
+            config = task_data.get("config", {})
+            
+            # Get system inputs from database
+            from ..core.database import async_session, SystemInput
+            from sqlalchemy import select
+            
+            async with async_session() as db:
+                if input_ids:
+                    result = await db.execute(
+                        select(SystemInput).where(SystemInput.id.in_(input_ids))
+                    )
+                    inputs = result.scalars().all()
+                    system_description = "\n\n".join([inp.content for inp in inputs])
+                else:
+                    system_description = "No system description provided"
+            
+            # Create shared context for the project
+            context = SharedContext(project_id=project_id)
+            
+            # Perform system analysis
+            result = await self.analyze_system(
+                context=context,
+                system_description=system_description,
+                additional_inputs=None
+            )
+            
+            return AgentResponse(
+                task_id=task.task_id,
+                agent_type=self.agent_type,
+                status="success",
+                output_data=result.to_dict(),
+                confidence_score=result.confidence_score,
+                execution_time=0.0,  # Would need to track this
+                errors=None
+            )
+            
+        except Exception as e:
+            logger.error(f"Task processing failed: {str(e)}", exc_info=True)
+            return AgentResponse(
+                task_id=task.task_id,
+                agent_type=self.agent_type,
+                status="failure",
+                output_data={},
+                confidence_score=0.0,
+                execution_time=0.0,
+                errors=[str(e)]
+            )
+    
     async def get_analysis_summary(self, context: SharedContext) -> Optional[Dict[str, Any]]:
         """Get a summary of the current system analysis"""
         analysis_data = await context.get_data("system_analysis")
