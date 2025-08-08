@@ -9,7 +9,7 @@ from typing import Dict, Any, List
 from langsmith import traceable
 
 from app.agents.base_agent import BaseAgent
-from app.services.mitre_service import mitre_service
+from app.services.enhanced_mitre_service import get_enhanced_mitre_service
 from app.models.schemas import AgentTask, AgentResponse
 
 
@@ -78,11 +78,30 @@ Focus on realistic, system-specific attack scenarios. Consider the actual techno
                     errors=["Missing system analysis data"]
                 )
             
-            # Get suggested techniques from MITRE service
-            suggested_techniques = mitre_service.suggest_techniques_for_system(
-                system_technologies=technologies,
-                asset_types=[asset.get('type', 'unknown') for asset in assets]
+            # Get suggested techniques from enhanced MITRE service
+            mitre_service = get_enhanced_mitre_service()
+            
+            # Convert assets to components format
+            components = [
+                {
+                    'name': asset.get('name', 'unknown'),
+                    'type': asset.get('type', 'unknown'),
+                    'technologies': technologies,
+                    'criticality': asset.get('criticality', 'medium')
+                }
+                for asset in assets
+            ]
+            
+            # Get techniques for components
+            component_techniques = mitre_service.get_techniques_for_system_components(
+                components=components, 
+                limit_per_component=15
             )
+            
+            # Flatten techniques from all components
+            suggested_techniques = []
+            for comp_name, techniques in component_techniques.items():
+                suggested_techniques.extend(techniques)
             
             # Create prompt with system context and suggested techniques
             techniques_info = "\\n".join([
@@ -264,7 +283,8 @@ Be realistic about control effectiveness and focus on actionable insights.'''
             
             techniques_list = list(all_techniques)[:10]  # Limit for prompt size
             
-            # Get technique details for context
+            # Get technique details for context using enhanced MITRE service
+            mitre_service = get_enhanced_mitre_service()
             technique_details = []
             for tech_id in techniques_list:
                 technique_info = mitre_service.get_technique(tech_id)

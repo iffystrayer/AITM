@@ -15,6 +15,7 @@ from sqlalchemy import select, update
 from app.core.database import async_session, Project, AttackPath, Recommendation
 from app.agents.base_agent import SharedContextManager, SystemAnalystAgent
 from app.agents.attack_mapper_agent import AttackMapperAgent, ControlEvaluationAgent
+from app.agents.report_generation_agent import ReportGenerationAgent
 from app.models.schemas import AgentTask
 from app.services.llm_service import llm_service
 
@@ -32,12 +33,14 @@ class ThreatModelingOrchestrator:
         self.system_analyst = SystemAnalystAgent()
         self.attack_mapper = AttackMapperAgent()
         self.control_evaluator = ControlEvaluationAgent()
+        self.report_generator = ReportGenerationAgent()
         
         # Agent registry
         self.agents = {
             "system_analyst": self.system_analyst,
             "attack_mapper": self.attack_mapper,
-            "control_evaluator": self.control_evaluator
+            "control_evaluator": self.control_evaluator,
+            "report_generator": self.report_generator
         }
     
     async def analyze_project(self, project_id: int, analysis_config: Dict[str, Any]):
@@ -123,8 +126,26 @@ class ThreatModelingOrchestrator:
             logger.info(f"Step 4: Generate Recommendations for project {project_id}")
             await self._generate_recommendations(project_id, context_manager)
             
-            # Step 5: Store Results in Database
-            logger.info(f"Step 5: Storing results for project {project_id}")
+            # Step 5: Generate Comprehensive Report
+            logger.info(f"Step 5: Generate Comprehensive Report for project {project_id}")
+            report_task = AgentTask(
+                task_id=str(uuid.uuid4()),
+                agent_type="report_generator",
+                task_description="Generate comprehensive threat modeling report",
+                input_data={
+                    "include_executive_summary": analysis_config.get("include_executive_summary", True),
+                    "include_technical_details": analysis_config.get("include_technical_details", True),
+                    "report_format": analysis_config.get("report_format", "comprehensive")
+                }
+            )
+            
+            report_result = await self.report_generator.process_task(report_task)
+            
+            if report_result.status != "success":
+                logger.warning(f"Report generation failed for project {project_id}, continuing without it")
+            
+            # Step 6: Store Results in Database
+            logger.info(f"Step 6: Storing results for project {project_id}")
             await self._store_results(project_id, context_manager)
             
             # Mark as completed
