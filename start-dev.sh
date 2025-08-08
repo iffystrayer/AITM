@@ -35,8 +35,9 @@ pip install -r requirements.txt
 
 # Start backend server
 echo "🚀 Starting backend server on port 38527..."
-python app/main.py &
+cd app && python main.py &
 BACKEND_PID=$!
+cd ..
 
 # Go back to root and start frontend
 cd ../frontend
