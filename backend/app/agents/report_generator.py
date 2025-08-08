@@ -14,11 +14,17 @@ from enum import Enum
 import json
 from pathlib import Path
 
-from app.core.config import get_settings
-from app.models.project import Project
-from app.models.analysis import Analysis
+# Removed model imports for standalone demo
+# from app.core.config import get_settings
+# from app.models.project import Project
+# from app.models.analysis import Analysis
 
-settings = get_settings()
+# Mock settings for standalone demo
+class MockSettings:
+    debug = True
+    environment = "development"
+
+settings = MockSettings()
 logger = logging.getLogger(__name__)
 
 

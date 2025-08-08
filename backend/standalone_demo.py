@@ -356,7 +356,7 @@ async def list_reports():
     for report_id, report_info in generated_reports.items():
         user_reports.append(ReportResponse(
             report_id=report_id,
-            title=report_info.get("content", {}).get("title", f"Report {report_id}") if report_info.get("content") else f"Report {report_id}",
+            title=report_info.get("content").title if report_info.get("content") else f"Report {report_id}",
             report_type=report_info["request"].report_type,
             format=report_info["request"].format,
             status=report_info["status"],
