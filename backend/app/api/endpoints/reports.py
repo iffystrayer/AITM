@@ -44,7 +44,7 @@ class ReportGenerationRequest(BaseModel):
     include_mitre_mapping: bool = True
     include_recommendations: bool = True
     custom_sections: Optional[List[str]] = None
-    audience_level: str = Field(default="technical", regex="^(executive|technical|operational)$")
+    audience_level: str = Field(default="technical", pattern="^(executive|technical|operational)$")
     branding: Optional[Dict[str, str]] = None
     
     @validator('project_ids')
