@@ -12,7 +12,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models.user import User
+from app.core.prediction_dependency import get_prediction_service
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,10 @@ async def get_current_user(
     In a real implementation, this would validate JWT tokens and fetch user from database.
     """
     
-    # For demo purposes, return a mock user
+
+def get_prediction_service():
+    from app.services.prediction_service import RiskPredictionService
+    return RiskPredictionService()
     # In production, this would:
     # 1. Validate JWT token from credentials
     # 2. Extract user ID from token
@@ -129,5 +132,7 @@ def get_optional_user(
     """
     try:
         return get_current_user(credentials, db)
-    except HTTPException:
-        return None
+
+def get_prediction_service():
+    from app.services.prediction_service import RiskPredictionService
+    return RiskPredictionService()
