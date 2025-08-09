@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- complementary:
+  - img
+  - button "Expand sidebar":
+    - img
+  - navigation:
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: /
+          - img
+      - listitem:
+        - link "Projects":
+          - /url: /projects
+          - img
+      - listitem:
+        - link "Analysis":
+          - /url: /analysis
+          - img
+      - listitem:
+        - link "Assets":
+          - /url: /assets
+          - img
+      - listitem:
+        - link "Reports":
+          - /url: /reports
+          - img
+      - listitem:
+        - link "MITRE ATT&CK":
+          - /url: /mitre
+          - img
+- banner:
+  - button:
+    - img
+  - heading "Dashboard" [level=1]
+  - button "Toggle theme":
+    - img
+  - button:
+    - img
+    - img
+- main:
+  - heading "AITM" [level=1]
+  - paragraph: AI-Powered Threat Modeler using multi-agent systems and MITRE ATT&CK framework
+  - text: API
+  - term: Backend Status
+  - definition: ✅ Backend Online (healthy)
+  - text: UI
+  - term: Frontend Status
+  - definition: ✅ Active
+  - text: ENV
+  - term: Environment
+  - definition: Development
+  - heading "MVP Features Ready" [level=3]
+  - text: ✅
+  - heading "Multi-Agent System" [level=4]
+  - paragraph: SAA, AMA, CEA agents with orchestrator
+  - text: ✅
+  - heading "LLM Integration" [level=4]
+  - paragraph: Gemini, OpenAI, Ollama, LiteLLM support
+  - text: ✅
+  - heading "MITRE ATT&CK" [level=4]
+  - paragraph: Knowledge base integration
+  - text: ✅
+  - heading "REST API" [level=4]
+  - paragraph: Complete threat modeling endpoints
+  - heading "Quick Access" [level=3]
+  - link "📚 API Documentation":
+    - /url: http://127.0.0.1:38527/docs
+  - link "🔍 Health Check":
+    - /url: http://127.0.0.1:38527/health
+  - heading "Backend Response" [level=3]
+  - text: "{ \"status\": \"healthy\", \"environment\": \"development\", \"version\": \"0.1.0\" }"
+```
