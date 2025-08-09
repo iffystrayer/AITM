@@ -11,6 +11,7 @@ COPY package*.json ./
 
 # Install dependencies
 RUN npm install
+RUN npx playwright install
 
 # Copy source code
 COPY . .

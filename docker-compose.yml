@@ -1,4 +1,13 @@
 services:
+  tests:
+    build:
+      context: ./frontend
+      dockerfile: ./tests/Dockerfile
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - aitm-network
   backend:
     build:
       context: ./backend

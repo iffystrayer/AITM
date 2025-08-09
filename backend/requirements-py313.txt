@@ -28,6 +28,8 @@ greenlet>=2.0.2  # Required for async SQLAlchemy
 pydantic>=2.8.2
 pydantic-settings>=2.0.0  # Required for BaseSettings
 typing-extensions>=4.8.0  # Explicit for better compatibility
+numpy>=1.24.0
+scikit-learn>=1.3.0
 
 # Essential utilities
 requests>=2.31.0

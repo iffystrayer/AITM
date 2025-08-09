@@ -6,7 +6,7 @@
 import RiskTrendChartCanvas from './RiskTrendChartCanvas.svelte';
 	import MitreCoverageChart from './MitreCoverageChart.svelte';
 	import ThreatIntelFeed from './ThreatIntelFeed.svelte';
-	import apiService from '$lib/api.js';
+	import apiService from '$lib/api.ts';
 
 	let dashboardData = null;
 	let loading = true;
