@@ -61,7 +61,7 @@ test.describe('AITM Application Smoke Tests', () => {
 
       await newPage.waitForLoadState('networkidle');
       expect(newPage.url()).toContain('127.0.0.1:38527/docs');
-      await expect(newPage.locator('text=FastAPI')).toBeVisible({ timeout: 10000 });
+      await expect(newPage.locator('#swagger-ui')).toBeVisible({ timeout: 10000 });
       await newPage.close();
     });
 

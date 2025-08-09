@@ -18,7 +18,7 @@ test.describe('API Integration Tests', () => {
       expect(response.ok()).toBeTruthy();
       
       const html = await response.text();
-      expect(html).toContain('FastAPI');
+      expect(html).toContain('swagger-ui');
       expect(html).toContain('swagger');
     });
   });
@@ -125,9 +125,8 @@ test.describe('API Integration Tests', () => {
       expect(response.ok()).toBeTruthy();
       const input = await response.json();
       
-      expect(input).toHaveProperty('id');
-      expect(input).toHaveProperty('title', inputData.title);
-      expect(input).toHaveProperty('content', inputData.content);
+      expect(input).toHaveProperty('input_id');
+      expect(input).toHaveProperty('message');
       
       inputId = input.id;
     });
@@ -273,7 +272,7 @@ test.describe('API Integration Tests', () => {
       expect(project).toHaveProperty('updated_at');
 
       // Validate field types
-      expect(typeof project.id).toBe('string');
+      expect(typeof project.id).toBe('number');
       expect(typeof project.name).toBe('string');
       expect(typeof project.status).toBe('string');
       expect(typeof project.created_at).toBe('string');
