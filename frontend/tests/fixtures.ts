@@ -159,28 +159,45 @@ export class ProjectDetailPage {
 export class NavigationHelper {
   constructor(private page: Page) {}
 
+  async ensureSidebarOpen() {
+    // Check if sidebar is collapsed and expand it if needed
+    const sidebar = await this.page.locator('.sidebar');
+    const isOpen = await sidebar.evaluate((el) => el.classList.contains('open'));
+    
+    if (!isOpen) {
+      // Click the toggle button to expand sidebar
+      await this.page.click('.toggle-btn');
+      await this.page.waitForTimeout(500); // Wait for animation
+    }
+  }
+
   async navigateToProjects() {
-    await this.page.click('a:has-text("Projects")');
+    await this.ensureSidebarOpen();
+    await this.page.click('a[href="/projects"]');
     await this.page.waitForLoadState('networkidle');
   }
 
   async navigateToAnalysis() {
-    await this.page.click('a:has-text("Analysis")');
+    await this.ensureSidebarOpen();
+    await this.page.click('a[href="/analysis"]');
     await this.page.waitForLoadState('networkidle');
   }
 
   async navigateToAssets() {
-    await this.page.click('a:has-text("Assets")');
+    await this.ensureSidebarOpen();
+    await this.page.click('a[href="/assets"]');
     await this.page.waitForLoadState('networkidle');
   }
 
   async navigateToReports() {
-    await this.page.click('a:has-text("Reports")');
+    await this.ensureSidebarOpen();
+    await this.page.click('a[href="/reports"]');
     await this.page.waitForLoadState('networkidle');
   }
 
   async navigateToDashboard() {
-    await this.page.click('a:has-text("Dashboard")');
+    await this.ensureSidebarOpen();
+    await this.page.click('a[href="/"]');
     await this.page.waitForLoadState('networkidle');
   }
 }

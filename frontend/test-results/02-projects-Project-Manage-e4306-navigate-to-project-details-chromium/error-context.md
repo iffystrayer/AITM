@@ -1,0 +1,274 @@
+# Page snapshot
+
+```yaml
+- complementary:
+  - img
+  - heading "AITM" [level=1]
+  - paragraph: AI Threat Modeler
+  - button "Collapse sidebar":
+    - img
+  - text: Backend Offline
+  - navigation:
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: /
+          - img
+          - text: Dashboard
+      - listitem:
+        - link "Projects":
+          - /url: /projects
+          - img
+          - text: Projects
+      - listitem:
+        - link "Analysis":
+          - /url: /analysis
+          - img
+          - text: Analysis
+      - listitem:
+        - link "Assets":
+          - /url: /assets
+          - img
+          - text: Assets
+      - listitem:
+        - link "Reports":
+          - /url: /reports
+          - img
+          - text: Reports
+      - listitem:
+        - link "MITRE ATT&CK":
+          - /url: /mitre
+          - img
+          - text: MITRE ATT&CK
+  - text: Version 1.0.0
+- banner:
+  - heading "Dashboard" [level=1]
+  - button "Toggle theme":
+    - img
+  - button "User":
+    - img
+    - text: User
+    - img
+- main:
+  - heading "Threat Modeling Projects" [level=2]
+  - paragraph: Manage and organize your security analysis projects
+  - button "+ New Project"
+  - heading "E2E Test Project 1754764788069" [level=3]
+  - text: created
+  - paragraph: Automated test project for end-to-end testing
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/40
+  - button "Delete"
+  - heading "Analysis Test Project 1754764786462" [level=3]
+  - text: created
+  - paragraph: Project for testing analysis workflow
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/39
+  - button "Delete"
+  - heading "Input Test Project 1754764786666" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/38
+  - button "Delete"
+  - heading "Input Test Project 1754764771789" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/37
+  - button "Delete"
+  - heading "E2E Test Project 1754764652836" [level=3]
+  - text: created
+  - paragraph: Automated test project for end-to-end testing
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/36
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/35
+  - button "Delete"
+  - heading "Input Test Project 1754755555250" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/34
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/32
+  - button "Delete"
+  - heading "Input Test Project 1754755554189" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/31
+  - button "Delete"
+  - heading "Input Test Project 1754755552879" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/25
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/24
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/23
+  - button "Delete"
+  - heading "Input Test Project 1754755551769" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/22
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/21
+  - button "Delete"
+  - heading "Input Test Project 1754755548441" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/20
+  - button "Delete"
+  - heading "E2E Test Project" [level=3]
+  - text: created
+  - paragraph: Testing full-stack integration
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/17
+  - button "Delete"
+  - heading "wfr" [level=3]
+  - text: "created Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/16
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/15
+  - button "Delete"
+  - heading "Input Test Project 1754753738033" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/14
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/13
+  - button "Delete"
+  - heading "Input Test Project 1754753735586" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/12
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/11
+  - button "Delete"
+  - heading "Input Test Project 1754753733066" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/10
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/9
+  - button "Delete"
+  - heading "Input Test Project 1754753728532" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/8
+  - button "Delete"
+  - heading "Schema Validation Test" [level=3]
+  - text: created
+  - paragraph: Testing API response schemas
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/7
+  - button "Delete"
+  - heading "Input Test Project 1754753724780" [level=3]
+  - text: created
+  - paragraph: Project for testing system inputs API
+  - text: "Created: Aug 9, 2025"
+  - link "View Details →":
+    - /url: /projects/6
+  - button "Delete"
+  - heading "Demo Banking Application" [level=3]
+  - text: created
+  - paragraph: A comprehensive mobile banking application with user authentication, account management, fund transfers, and payment processing.
+  - text: "Created: Aug 8, 2025"
+  - link "View Details →":
+    - /url: /projects/5
+  - button "Delete"
+  - heading "hello" [level=3]
+  - text: "created Created: Aug 8, 2025"
+  - link "View Details →":
+    - /url: /projects/4
+  - button "Delete"
+  - heading "Hello" [level=3]
+  - text: "created Created: Aug 8, 2025"
+  - link "View Details →":
+    - /url: /projects/3
+  - button "Delete"
+  - heading "Demo Project with Results" [level=3]
+  - text: completed
+  - paragraph: Project with mock analysis results for frontend testing
+  - text: "Created: Aug 8, 2025"
+  - link "View Details →":
+    - /url: /projects/2
+  - button "Delete"
+  - heading "Test Project for Analysis" [level=3]
+  - text: failed
+  - paragraph: Testing the new analysis endpoints
+  - text: "Created: Aug 8, 2025"
+  - link "View Details →":
+    - /url: /projects/1
+  - button "Delete"
+```
