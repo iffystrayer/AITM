@@ -3,7 +3,7 @@
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import MetricCard from './MetricCard.svelte';
 	import ThreatHeatmap from './ThreatHeatmap.svelte';
-	import RiskTrendChart from './RiskTrendChart.svelte';
+import RiskTrendChartCanvas from './RiskTrendChartCanvas.svelte';
 	import MitreCoverageChart from './MitreCoverageChart.svelte';
 	import ThreatIntelFeed from './ThreatIntelFeed.svelte';
 	import apiService from '$lib/api.js';
@@ -329,7 +329,7 @@
 			{:else if activeView === 'threats'}
 				<ThreatHeatmap data={dashboardData.threatLandscape} detailed={true} />
 			{:else if activeView === 'trends'}
-				<RiskTrendChart data={dashboardData.riskTrends} />
+<RiskTrendChartCanvas historicalData={dashboardData.riskTrends.historical} futureData={dashboardData.riskTrends.future} />
 			{:else if activeView === 'mitre'}
 				<MitreCoverageChart data={dashboardData.mitreCoverage} />
 			{/if}

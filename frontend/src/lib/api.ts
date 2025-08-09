@@ -234,7 +234,12 @@ class ApiService {
 		});
 	}
 
-	// Legacy threat modeling methods for backwards compatibility
+
+    predictRisk(historicalData: any[]): Promise<ApiResponse<any>> {
+        return this.client.post('/predictions/predict-risk', historicalData);
+    }
+
+    // Legacy threat modeling methods for backwards compatibility
 	async getThreatModelingStatus(projectId: number): Promise<ApiResponse<ThreatModelingStatus>> {
 		// Map new analysis status to old format
 		const statusResponse = await this.getAnalysisStatus(projectId);
