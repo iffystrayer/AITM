@@ -95,10 +95,6 @@ class ApiService {
 		return response.data;
 	}
 
-	async getThreatModelingStatus(projectId: number): Promise<ApiResponse<ThreatModelingStatus>> {
-		const response = await this.client.get(`/projects/${projectId}/status`);
-		return response.data;
-	}
 
 	// Attack Paths
 	async getAttackPaths(projectId: number): Promise<ApiResponse<AttackPath[]>> {
