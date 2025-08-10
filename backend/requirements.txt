@@ -32,8 +32,9 @@ greenlet>=2.0.2  # Required for async SQLAlchemy
 pydantic==2.8.2
 pydantic-settings>=2.0.0  # Required for BaseSettings
 pydantic-core==2.20.1
-pandas==2.1.4
-numpy==1.24.3
+email-validator>=1.3.0  # Required for EmailStr
+pandas>=2.2.0
+numpy>=1.26.0
 
 # Machine Learning
 scikit-learn>=1.3.0

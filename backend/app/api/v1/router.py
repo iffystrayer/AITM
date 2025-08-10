@@ -6,7 +6,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import projects, threat_modeling
 from app.api.v1 import analytics, enhanced_ai
-from app.api.endpoints import reports, predictions, auth
+from app.api.endpoints import reports, predictions, auth, collaboration
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -26,6 +26,7 @@ async def health_check():
 # Include endpoint routers
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
 api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
+api_router.include_router(collaboration.router, prefix="/collaboration", tags=["collaboration"])
 api_router.include_router(predictions.router, prefix="/predictions", tags=["predictions"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 api_router.include_router(enhanced_ai.router, prefix="/enhanced-ai", tags=["enhanced-ai"])

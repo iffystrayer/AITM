@@ -1,0 +1,320 @@
+version: '3.8'
+
+services:
+  # Frontend Service (Production Build)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: aitm-frontend-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_BASE_URL=https://api.aitm.local/api/v1
+      - VITE_ENVIRONMENT=production
+    volumes:
+      - ./ssl:/etc/ssl/certs:ro  # SSL certificates
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - aitm-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.aitm-frontend.rule=Host(`aitm.local`)"
+      - "traefik.http.routers.aitm-frontend.tls=true"
+
+  # Backend Service (Production)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: aitm-backend-prod
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Database
+      - DATABASE_URL=postgresql+asyncpg://aitm_user:${DB_PASSWORD}@postgres:5432/aitm_prod
+      - DATABASE_POOL_SIZE=20
+      - DATABASE_MAX_OVERFLOW=30
+      
+      # Security
+      - SECRET_KEY=${JWT_SECRET_KEY}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=15
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+      - BCRYPT_ROUNDS=12
+      
+      # API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      
+      # Redis
+      - REDIS_URL=redis://redis:6379/0
+      - CACHE_TTL=3600
+      
+      # Application
+      - ENVIRONMENT=production
+      - LOG_LEVEL=WARNING
+      - DEBUG=false
+      - CORS_ORIGINS=https://aitm.local,https://api.aitm.local
+      
+      # Rate Limiting
+      - RATE_LIMIT_REQUESTS=100
+      - RATE_LIMIT_WINDOW=300
+      
+      # File Upload
+      - MAX_FILE_SIZE=10485760  # 10MB
+      - UPLOAD_PATH=/app/uploads
+      
+      # Monitoring
+      - SENTRY_DSN=${SENTRY_DSN}
+      - PROMETHEUS_ENABLED=true
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - aitm-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.aitm-backend.rule=Host(`api.aitm.local`)"
+      - "traefik.http.routers.aitm-backend.tls=true"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # PostgreSQL Database (Production)
+  postgres:
+    image: postgres:15-alpine
+    container_name: aitm-postgres-prod
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=aitm_prod
+      - POSTGRES_USER=aitm_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+      - ./database/backups:/backups
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aitm_user -d aitm_prod"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - aitm-network
+    command: >
+      postgres -c shared_preload_libraries=pg_stat_statements
+               -c pg_stat_statements.track=all
+               -c max_connections=200
+               -c shared_buffers=256MB
+               -c effective_cache_size=1GB
+               -c work_mem=4MB
+               -c maintenance_work_mem=64MB
+               -c checkpoint_segments=32
+               -c checkpoint_completion_target=0.8
+               -c wal_buffers=16MB
+               -c default_statistics_target=100
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # Redis Cache (Production)
+  redis:
+    image: redis:7-alpine
+    container_name: aitm-redis-prod
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - aitm-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+
+  # Reverse Proxy (Traefik)
+  traefik:
+    image: traefik:v3.0
+    container_name: aitm-traefik-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik:ro
+      - ./ssl:/ssl:ro
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@aitm.local"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/ssl/acme.json"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--metrics.prometheus=true"
+    networks:
+      - aitm-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.aitm.local`)"
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aitm-prometheus-prod
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - aitm-network
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: aitm-grafana-prod
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning:ro
+    networks:
+      - aitm-network
+
+  # Log Aggregation - Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: aitm-loki-prod
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yaml:ro
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - aitm-network
+
+  # Log Collection - Promtail
+  promtail:
+    image: grafana/promtail:latest
+    container_name: aitm-promtail-prod
+    restart: unless-stopped
+    volumes:
+      - ./logs:/var/log/aitm:ro
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - aitm-network
+
+  # Database Backup Service
+  postgres-backup:
+    image: postgres:15-alpine
+    container_name: aitm-backup-prod
+    restart: "no"
+    environment:
+      - PGPASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./database/backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    command: /backup.sh
+    depends_on:
+      - postgres
+    networks:
+      - aitm-network
+    profiles:
+      - backup
+
+# Networks
+networks:
+  aitm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/postgres
+  redis_data:
+    driver: local  
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/redis
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/prometheus
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/grafana
+  loki_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/loki

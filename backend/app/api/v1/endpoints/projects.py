@@ -1,5 +1,5 @@
 """
-Projects API endpoints
+Projects API endpoints with authentication
 """
 
 from typing import List, Optional
@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.database import get_db, Project, SystemInput, AnalysisState, AnalysisResults
+from app.api.endpoints.auth import get_current_active_user
+from app.models.user import User
 from app.models.schemas import (
     ProjectCreate, ProjectResponse, ProjectUpdate, SystemInputCreate,
     AnalysisStartRequest, AnalysisStartResponse, AnalysisStatusResponse,
@@ -20,13 +22,31 @@ router = APIRouter()
 @router.post("/", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 async def create_project(
     project: ProjectCreate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Create a new threat modeling project"""
-    db_project = Project(**project.dict())
+    project_data = project.dict()
+    project_data["owner_user_id"] = current_user.id
+    
+    db_project = Project(**project_data)
     db.add(db_project)
     await db.flush()
     await db.refresh(db_project)
+    
+    # Log activity (import collaboration service)
+    from app.services.collaboration_service import get_collaboration_service
+    from app.models.collaboration import ActivityType
+    collab_service = get_collaboration_service()
+    await collab_service._log_activity(
+        db,
+        user_id=current_user.id,
+        project_id=db_project.id,
+        activity_type=ActivityType.PROJECT_CREATED,
+        description=f"Created project '{project.name}'",
+        metadata={"project_name": project.name}
+    )
+    
     return db_project
 
 

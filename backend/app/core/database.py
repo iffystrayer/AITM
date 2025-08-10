@@ -34,6 +34,7 @@ class Project(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text)
     status = Column(String(50), default="created")  # created, analyzing, completed, failed
+    owner_user_id = Column(String, nullable=False)  # References users.id
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -184,8 +185,11 @@ async def get_db():
 
 async def init_db():
     """Initialize database tables"""
-    # Import UserTable to ensure it's included in Base metadata
+    # Import all models to ensure they're included in Base metadata
     from app.models.user import UserTable
+    from app.models.collaboration import (
+        Team, TeamMembership, ProjectShare, ProjectComment, ActivityLog
+    )
     
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
