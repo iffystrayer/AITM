@@ -31,6 +31,10 @@ pydantic-core==2.20.1
 pandas==2.1.4
 numpy==1.24.3
 
+# Machine Learning
+scikit-learn>=1.3.0
+scipy>=1.11.0
+
 # MITRE ATT&CK and Security
 requests==2.31.0
 stix2==3.0.1
