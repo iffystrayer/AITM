@@ -184,5 +184,8 @@ async def get_db():
 
 async def init_db():
     """Initialize database tables"""
+    # Import UserTable to ensure it's included in Base metadata
+    from app.models.user import UserTable
+    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
