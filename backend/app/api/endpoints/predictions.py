@@ -75,7 +75,7 @@ def predict_current_risk(
 @router.post("/predict-future-risk", response_model=FutureRiskResponse)
 def predict_future_risk(
     threat_data: ThreatDataInput,
-    days_ahead: int = Field(30, ge=1, le=365, description="Days ahead to predict"),
+    days_ahead: int = 30,
     service: RiskPredictionService = Depends(get_prediction_service)
 ):
     """Predict future risk progression with scenario analysis."""

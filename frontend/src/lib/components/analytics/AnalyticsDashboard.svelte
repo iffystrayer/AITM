@@ -1,11 +1,14 @@
 <script>
 	import { onMount } from 'svelte';
-	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-	import MetricCard from './MetricCard.svelte';
-	import ThreatHeatmap from './ThreatHeatmap.svelte';
+import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+import MetricCard from './MetricCard.svelte';
+import EnhancedMetricCard from './EnhancedMetricCard.svelte';
+import RiskChart from './RiskChart.svelte';
+import ThreatDistributionChart from './ThreatDistributionChart.svelte';
+import ThreatHeatmap from './ThreatHeatmap.svelte';
 import RiskTrendChartCanvas from './RiskTrendChartCanvas.svelte';
-	import MitreCoverageChart from './MitreCoverageChart.svelte';
-	import ThreatIntelFeed from './ThreatIntelFeed.svelte';
+import MitreCoverageChart from './MitreCoverageChart.svelte';
+import ThreatIntelFeed from './ThreatIntelFeed.svelte';
 	import apiService from '$lib/api.ts';
 
 	let dashboardData = null;
@@ -319,6 +322,25 @@ import RiskTrendChartCanvas from './RiskTrendChartCanvas.svelte';
 			</nav>
 		</div>
 
+		<!-- Enhanced Charts Section -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+			<!-- Risk Trends Chart -->
+			<div class="lg:col-span-2">
+				<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+					<h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Risk Score Trends</h2>
+					<RiskChart data={dashboardData.riskTrends} height="320px" />
+				</div>
+			</div>
+
+			<!-- Threat Distribution Chart -->
+			<div class="lg:col-span-1">
+				<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+					<h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Threat Categories</h2>
+					<ThreatDistributionChart data={dashboardData.threatLandscape.topTactics.map(([tactic, count]) => ({ category: tactic, count, color: '#' + Math.floor(Math.random()*16777215).toString(16) }))} height="320px" />
+				</div>
+			</div>
+		</div>
+
 		<!-- Tab Content -->
 		<div class="mt-6">
 			{#if activeView === 'overview'}
@@ -329,7 +351,7 @@ import RiskTrendChartCanvas from './RiskTrendChartCanvas.svelte';
 			{:else if activeView === 'threats'}
 				<ThreatHeatmap data={dashboardData.threatLandscape} detailed={true} />
 			{:else if activeView === 'trends'}
-<RiskTrendChartCanvas historicalData={dashboardData.riskTrends.historical} futureData={dashboardData.riskTrends.future} />
+				<RiskTrendChartCanvas historicalData={dashboardData.riskTrends.historical} futureData={dashboardData.riskTrends.future} />
 			{:else if activeView === 'mitre'}
 				<MitreCoverageChart data={dashboardData.mitreCoverage} />
 			{/if}

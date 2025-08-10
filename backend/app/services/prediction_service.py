@@ -350,3 +350,142 @@ class RiskPredictionService:
             'feature_weights': self.feature_weights,
             'ready_for_prediction': any(m['trained'] for m in self.model_metrics.values())
         }
+    
+    async def predict_project_risks(
+        self, 
+        db, 
+        project_ids: Optional[List[int]] = None, 
+        prediction_horizon: int = 30,
+        confidence_threshold: float = 0.7
+    ) -> List[Dict]:
+        """Predict risks for multiple projects"""
+        try:
+            from sqlalchemy import select
+            from app.core.database import Project, AnalysisResults
+            
+            # Get projects to analyze
+            if project_ids:
+                projects_query = select(Project).where(Project.id.in_(project_ids))
+            else:
+                projects_query = select(Project).limit(50)  # Limit for performance
+            
+            projects = await db.scalars(projects_query)
+            predictions = []
+            
+            for project in projects.all():
+                # Get latest analysis results for the project
+                analysis_result = await db.scalar(
+                    select(AnalysisResults)
+                    .where(AnalysisResults.project_id == project.id)
+                    .order_by(AnalysisResults.created_at.desc())
+                )
+                
+                if not analysis_result:
+                    # Create default threat data for projects without analysis
+                    threat_data = {
+                        'days_since_last_analysis': 999,
+                        'analysis_frequency': 0,
+                        'unique_attack_paths': 0,
+                        'avg_attack_complexity': 0.5,
+                        'critical_vulnerabilities': 0,
+                        'public_endpoints': 1,
+                        'trust_boundaries': 1,
+                        'data_sensitivity_score': 0.5,
+                        'mitre_technique_count': 0,
+                        'mitre_tactic_coverage': 0,
+                        'high_impact_techniques': 0
+                    }
+                    current_risk_score = 0.5
+                else:
+                    # Extract features from analysis results
+                    threat_data = {
+                        'days_since_last_analysis': (datetime.now() - analysis_result.created_at).days,
+                        'analysis_frequency': 1,
+                        'unique_attack_paths': getattr(analysis_result, 'attack_paths_count', 0),
+                        'avg_attack_complexity': 0.5,
+                        'critical_vulnerabilities': getattr(analysis_result, 'critical_vulns_count', 0),
+                        'public_endpoints': 1,
+                        'trust_boundaries': 1,
+                        'data_sensitivity_score': 0.5,
+                        'mitre_technique_count': getattr(analysis_result, 'mitre_techniques_count', 0),
+                        'mitre_tactic_coverage': 0.5,
+                        'high_impact_techniques': 0
+                    }
+                    current_risk_score = analysis_result.overall_risk_score
+                
+                # Generate prediction
+                prediction_result = self.predict_risk_score(threat_data)
+                future_prediction = self.predict_future_risk(threat_data, prediction_horizon)
+                
+                predictions.append({
+                    'project_id': project.id,
+                    'project_name': project.name,
+                    'current_risk_score': current_risk_score,
+                    'predicted_risk_score': prediction_result['risk_score'],
+                    'confidence': prediction_result['confidence'],
+                    'risk_factors': self._extract_risk_factors(threat_data),
+                    'recommendations': future_prediction.get('recommendations', [])
+                })
+            
+            return predictions
+            
+        except Exception as e:
+            logger.error(f"Error predicting project risks: {e}")
+            return []
+    
+    def _extract_risk_factors(self, threat_data: Dict) -> List[str]:
+        """Extract key risk factors from threat data"""
+        factors = []
+        
+        if threat_data.get('days_since_last_analysis', 0) > 90:
+            factors.append("Long time since last analysis")
+        
+        if threat_data.get('critical_vulnerabilities', 0) > 0:
+            factors.append(f"{threat_data['critical_vulnerabilities']} critical vulnerabilities")
+        
+        if threat_data.get('unique_attack_paths', 0) > 10:
+            factors.append("High number of attack paths")
+        
+        if threat_data.get('public_endpoints', 0) > 5:
+            factors.append("Multiple public endpoints")
+        
+        if threat_data.get('mitre_technique_count', 0) > 15:
+            factors.append("High MITRE technique coverage")
+        
+        if not factors:
+            factors.append("Standard security posture")
+        
+        return factors
+    
+    async def generate_prediction_insights(self, predictions: List[Dict]) -> Dict[str, str]:
+        """Generate insights from prediction results"""
+        if not predictions:
+            return {
+                'summary': 'No predictions available',
+                'trend': 'unknown',
+                'recommendation': 'Perform threat modeling to enable predictions'
+            }
+        
+        # Calculate summary statistics
+        risk_scores = [p['predicted_risk_score'] for p in predictions]
+        avg_risk = np.mean(risk_scores) if risk_scores else 0.5
+        high_risk_count = len([r for r in risk_scores if r > 0.7])
+        
+        # Generate insights
+        if high_risk_count > len(predictions) * 0.3:
+            summary = f"High risk detected: {high_risk_count} of {len(predictions)} projects predicted high risk"
+            recommendation = "Immediate security review recommended for high-risk projects"
+        elif avg_risk > 0.6:
+            summary = f"Moderate risk detected: Average predicted risk is {avg_risk:.2f}"
+            recommendation = "Enhanced monitoring and security measures recommended"
+        else:
+            summary = f"Risk levels manageable: Average predicted risk is {avg_risk:.2f}"
+            recommendation = "Continue current security practices and regular assessments"
+        
+        return {
+            'summary': summary,
+            'average_predicted_risk': round(avg_risk, 3),
+            'high_risk_projects': high_risk_count,
+            'total_projects': len(predictions),
+            'recommendation': recommendation
+        }

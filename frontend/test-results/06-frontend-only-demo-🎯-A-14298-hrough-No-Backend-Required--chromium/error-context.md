@@ -1,0 +1,111 @@
+# Page snapshot
+
+```yaml
+- complementary:
+  - img
+  - heading "AITM" [level=1]
+  - paragraph: AI Threat Modeler
+  - button "Collapse sidebar":
+    - img
+  - text: Backend Offline
+  - navigation:
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: /
+          - img
+          - text: Dashboard
+      - listitem:
+        - link "Projects":
+          - /url: /projects
+          - img
+          - text: Projects
+      - listitem:
+        - link "Analysis":
+          - /url: /analysis
+          - img
+          - text: Analysis
+      - listitem:
+        - link "Assets":
+          - /url: /assets
+          - img
+          - text: Assets
+      - listitem:
+        - link "Reports":
+          - /url: /reports
+          - img
+          - text: Reports
+      - listitem:
+        - link "MITRE ATT&CK":
+          - /url: /mitre
+          - img
+          - text: MITRE ATT&CK
+  - text: Version 1.0.0
+- banner:
+  - heading "Reports" [level=1]
+  - button "Toggle theme":
+    - img
+  - button "User":
+    - img
+    - text: User
+    - img
+- main:
+  - heading "📊 Reports & Analytics" [level=1]
+  - paragraph: Generate, manage, and schedule comprehensive security reports
+  - navigation:
+    - button "🎯 Generate Report"
+    - button "📋 My Reports"
+    - button "⏰ Scheduled Reports"
+    - button "📈 Analytics"
+  - heading "Generate New Report" [level=2]
+  - heading "📊 Report Type" [level=3]
+  - radio "Executive Summary High-level overview for executives" [checked]
+  - strong: Executive Summary
+  - text: High-level overview for executives
+  - radio "Technical Detailed Detailed technical analysis"
+  - strong: Technical Detailed
+  - text: Detailed technical analysis
+  - radio "Compliance Audit Compliance framework assessment"
+  - strong: Compliance Audit
+  - text: Compliance framework assessment
+  - heading "📄 Export Format" [level=3]
+  - text: 🌐
+  - strong: HTML
+  - text: 📊
+  - strong: JSON
+  - text: 📝
+  - strong: MARKDOWN
+  - text: 📋
+  - strong: PDF
+  - text: 📄
+  - strong: DOCX
+  - heading "🎯 Projects to Include" [level=3]
+  - checkbox "E-commerce Platform Online shopping application" [checked]
+  - strong: E-commerce Platform
+  - text: Online shopping application
+  - checkbox "Mobile Banking App Mobile financial services" [checked]
+  - strong: Mobile Banking App
+  - text: Mobile financial services
+  - checkbox "IoT Device Network Smart home device ecosystem"
+  - strong: IoT Device Network
+  - text: Smart home device ecosystem
+  - checkbox "Healthcare Portal Patient management system"
+  - strong: Healthcare Portal
+  - text: Patient management system
+  - heading "⚙️ Report Options" [level=3]
+  - checkbox "Include Charts and Visualizations" [checked]
+  - text: Include Charts and Visualizations
+  - checkbox "Include MITRE ATT&CK Mapping" [checked]
+  - text: Include MITRE ATT&CK Mapping
+  - checkbox "Include Recommendations" [checked]
+  - text: Include Recommendations
+  - heading "👥 Target Audience" [level=3]
+  - combobox:
+    - option "Executive Level" [selected]
+    - option "Technical Team"
+    - option "Operations Team"
+  - button "🚀 Generate Report"
+  - button "📋 Generate Sample"
+  - button "🔄 Reset Form"
+- text: Reports & Analytics - AITM
+```

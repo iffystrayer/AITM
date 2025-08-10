@@ -1,0 +1,5046 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AITM - AI-Powered Threat Modeler",
+    "description": "Automated threat modeling using AI agents and MITRE ATT&CK framework",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Health check endpoint for API v1",
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Register User",
+        "description": "Register a new user.",
+        "operationId": "register_user_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegistration"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Login User",
+        "description": "Authenticate user and return JWT tokens.",
+        "operationId": "login_user_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_user_api_v1_auth_login_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Refresh Token",
+        "description": "Refresh access token using refresh token.",
+        "operationId": "refresh_token_api_v1_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Get Current User Profile",
+        "description": "Get current user profile.",
+        "operationId": "get_current_user_profile_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Update Current User Profile",
+        "description": "Update current user profile.",
+        "operationId": "update_current_user_profile_api_v1_auth_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserProfile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Change Password",
+        "description": "Change current user password.",
+        "operationId": "change_password_api_v1_auth_change_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChange"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/password-requirements": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Get Password Requirements Endpoint",
+        "description": "Get password requirements for client-side validation.",
+        "operationId": "get_password_requirements_endpoint_api_v1_auth_password_requirements_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/users": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Get Users",
+        "description": "Get list of users (admin only).",
+        "operationId": "get_users_api_v1_auth_users_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "include_inactive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Inactive"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  },
+                  "title": "Response Get Users Api V1 Auth Users Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Create User",
+        "description": "Create new user (admin only).",
+        "operationId": "create_user_api_v1_auth_users_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/users/{user_id}": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Get User",
+        "description": "Get user by ID (admin only).",
+        "operationId": "get_user_api_v1_auth_users__user_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Update User",
+        "description": "Update user (admin only).",
+        "operationId": "update_user_api_v1_auth_users__user_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Delete User",
+        "description": "Deactivate user (admin only).",
+        "operationId": "delete_user_api_v1_auth_users__user_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/users/{user_id}/activate": {
+      "post": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Activate User",
+        "description": "Activate user (admin only).",
+        "operationId": "activate_user_api_v1_auth_users__user_id__activate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/stats": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Get Auth Stats",
+        "description": "Get authentication system statistics (admin only).",
+        "operationId": "get_auth_stats_api_v1_auth_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/projects/": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Create Project",
+        "description": "Create a new threat modeling project",
+        "operationId": "create_project_api_v1_projects__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "List Projects",
+        "description": "List all threat modeling projects",
+        "operationId": "list_projects_api_v1_projects__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectResponse"
+                  },
+                  "title": "Response List Projects Api V1 Projects  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get Project",
+        "description": "Get a specific project by ID",
+        "operationId": "get_project_api_v1_projects__project_id__get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Update Project",
+        "description": "Update a project",
+        "operationId": "update_project_api_v1_projects__project_id__put",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Delete Project",
+        "description": "Delete a project",
+        "operationId": "delete_project_api_v1_projects__project_id__delete",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/inputs": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Add System Input",
+        "description": "Add system input data to a project",
+        "operationId": "add_system_input_api_v1_projects__project_id__inputs_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemInputCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get Project Inputs",
+        "description": "Get all system inputs for a project",
+        "operationId": "get_project_inputs_api_v1_projects__project_id__inputs_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/analysis/start": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Start Analysis",
+        "description": "Start threat analysis for a project",
+        "operationId": "start_analysis_api_v1_projects__project_id__analysis_start_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalysisStartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisStartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/analysis/status": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get Analysis Status",
+        "description": "Get current analysis status for a project",
+        "operationId": "get_analysis_status_api_v1_projects__project_id__analysis_status_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/analysis/results": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get Analysis Results",
+        "description": "Get analysis results for a project",
+        "operationId": "get_analysis_results_api_v1_projects__project_id__analysis_results_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisResultsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictions/predict-current-risk": {
+      "post": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Predict Current Risk",
+        "description": "Predict current risk score based on threat landscape data.",
+        "operationId": "predict_current_risk_api_v1_predictions_predict_current_risk_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThreatDataInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__api__endpoints__predictions__RiskPredictionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictions/predict-future-risk": {
+      "post": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Predict Future Risk",
+        "description": "Predict future risk progression with scenario analysis.",
+        "operationId": "predict_future_risk_api_v1_predictions_predict_future_risk_post",
+        "parameters": [
+          {
+            "name": "days_ahead",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "title": "Days Ahead"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThreatDataInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FutureRiskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictions/train-models": {
+      "post": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Train Prediction Models",
+        "description": "Train prediction models with historical data.",
+        "operationId": "train_prediction_models_api_v1_predictions_train_models_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/HistoricalDataPoint"
+                },
+                "type": "array",
+                "title": "Historical Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictions/analyze-trends": {
+      "post": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Analyze Risk Trends",
+        "description": "Analyze trends in historical risk data.",
+        "operationId": "analyze_risk_trends_api_v1_predictions_analyze_trends_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/HistoricalDataPoint"
+                },
+                "type": "array",
+                "title": "Historical Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__api__endpoints__predictions__TrendAnalysisResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictions/model-status": {
+      "get": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Get Model Status",
+        "description": "Get current status and performance metrics of prediction models.",
+        "operationId": "get_model_status_api_v1_predictions_model_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictions/predict-risk": {
+      "post": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Predict Risk Legacy",
+        "description": "Legacy endpoint: Predict future risk based on historical data.",
+        "operationId": "predict_risk_legacy_api_v1_predictions_predict_risk_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_predict_risk_legacy_api_v1_predictions_predict_risk_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/dashboard": {
+      "get": {
+        "tags": [
+          "analytics",
+          "Analytics"
+        ],
+        "summary": "Get comprehensive dashboard metrics",
+        "description": "Retrieve executive dashboard metrics including project status, risk assessment, threat landscape, and performance indicators",
+        "operationId": "get_dashboard_metrics_api_v1_analytics_dashboard_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "period_days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 365,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Analysis period in days",
+              "default": 30,
+              "title": "Period Days"
+            },
+            "description": "Analysis period in days"
+          },
+          {
+            "name": "include_trends",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Include trend analysis",
+              "default": true,
+              "title": "Include Trends"
+            },
+            "description": "Include trend analysis"
+          },
+          {
+            "name": "include_predictions",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Include risk predictions",
+              "default": false,
+              "title": "Include Predictions"
+            },
+            "description": "Include risk predictions"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardMetricsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/project/{project_id}": {
+      "get": {
+        "tags": [
+          "analytics",
+          "Analytics"
+        ],
+        "summary": "Get detailed project analytics",
+        "description": "Retrieve comprehensive analytics for a specific project including risk assessment, attack paths, and recommendations",
+        "operationId": "get_project_analytics_api_v1_analytics_project__project_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "include_predictions",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Include risk predictions",
+              "default": true,
+              "title": "Include Predictions"
+            },
+            "description": "Include risk predictions"
+          },
+          {
+            "name": "include_recommendations",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Include recommendations analysis",
+              "default": true,
+              "title": "Include Recommendations"
+            },
+            "description": "Include recommendations analysis"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectAnalyticsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/trends": {
+      "get": {
+        "tags": [
+          "analytics",
+          "Analytics"
+        ],
+        "summary": "Get trend analysis",
+        "description": "Retrieve trend analysis for specified metrics over configurable time periods",
+        "operationId": "get_trend_analysis_api_v1_analytics_trends_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/AnalyticsPeriod",
+              "description": "Analysis period",
+              "default": "30d"
+            },
+            "description": "Analysis period"
+          },
+          {
+            "name": "metrics",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Metrics to analyze",
+              "default": [
+                "risk_score",
+                "project_count"
+              ],
+              "title": "Metrics"
+            },
+            "description": "Metrics to analyze"
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(daily|weekly|monthly)$",
+              "description": "Data granularity",
+              "default": "daily",
+              "title": "Granularity"
+            },
+            "description": "Data granularity"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__models__analytics__TrendAnalysisResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/reports/executive": {
+      "post": {
+        "tags": [
+          "analytics",
+          "Analytics"
+        ],
+        "summary": "Generate executive report",
+        "description": "Generate comprehensive executive reports with strategic insights and industry comparisons",
+        "operationId": "generate_executive_report_api_v1_analytics_reports_executive_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecutiveReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutiveReportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/predictions/risk": {
+      "post": {
+        "tags": [
+          "analytics",
+          "Analytics"
+        ],
+        "summary": "Get AI risk predictions",
+        "description": "Generate AI-powered risk predictions for projects with configurable prediction horizons",
+        "operationId": "get_risk_predictions_api_v1_analytics_predictions_risk_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RiskPredictionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__models__analytics__RiskPredictionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/health": {
+      "get": {
+        "tags": [
+          "analytics",
+          "Analytics"
+        ],
+        "summary": "Analytics system health check",
+        "description": "Check the health and status of the analytics system components",
+        "operationId": "analytics_health_check_api_v1_analytics_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/metrics/summary": {
+      "get": {
+        "tags": [
+          "analytics",
+          "Analytics"
+        ],
+        "summary": "Get analytics summary metrics",
+        "description": "Get high-level summary metrics for quick overview",
+        "operationId": "get_summary_metrics_api_v1_analytics_metrics_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/export/data": {
+      "get": {
+        "tags": [
+          "analytics",
+          "Analytics"
+        ],
+        "summary": "Export analytics data",
+        "description": "Export analytics data in various formats (JSON, CSV)",
+        "operationId": "export_analytics_data_api_v1_analytics_export_data_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(json|csv)$",
+              "description": "Export format",
+              "default": "json",
+              "title": "Format"
+            },
+            "description": "Export format"
+          },
+          {
+            "name": "period_days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 365,
+              "minimum": 1,
+              "description": "Data period",
+              "default": 30,
+              "title": "Period Days"
+            },
+            "description": "Data period"
+          },
+          {
+            "name": "include_raw_data",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include raw data points",
+              "default": false,
+              "title": "Include Raw Data"
+            },
+            "description": "Include raw data points"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/types": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get Report Types",
+        "description": "Get list of available report types",
+        "operationId": "get_report_types_api_v1_reports_types_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Get Report Types Api V1 Reports Types Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/formats": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get Report Formats",
+        "description": "Get list of supported report formats",
+        "operationId": "get_report_formats_api_v1_reports_formats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Get Report Formats Api V1 Reports Formats Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/generate": {
+      "post": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Generate Report",
+        "description": "Generate a report asynchronously",
+        "operationId": "generate_report_api_v1_reports_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/reports/{report_id}/status": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get Report Status",
+        "description": "Get the status of a report generation",
+        "operationId": "get_report_status_api_v1_reports__report_id__status_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/{report_id}/download": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Download Report",
+        "description": "Download a generated report",
+        "operationId": "download_report_api_v1_reports__report_id__download_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/{report_id}/preview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Preview Report",
+        "description": "Preview a generated report (HTML only)",
+        "operationId": "preview_report_api_v1_reports__report_id__preview_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List Reports",
+        "description": "List generated reports for the current user",
+        "operationId": "list_reports_api_v1_reports_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "report_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/app__agents__report_generator__ReportType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Report Type"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/{report_id}": {
+      "delete": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Delete Report",
+        "description": "Delete a generated report",
+        "operationId": "delete_report_api_v1_reports__report_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/schedule": {
+      "post": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Schedule Report",
+        "description": "Schedule a recurring report generation",
+        "operationId": "schedule_report_api_v1_reports_schedule_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportScheduleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportScheduleResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/reports/schedules": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List Scheduled Reports",
+        "description": "List scheduled reports for the current user",
+        "operationId": "list_scheduled_reports_api_v1_reports_schedules_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReportScheduleResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Scheduled Reports Api V1 Reports Schedules Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/reports/schedules/{schedule_id}": {
+      "delete": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Delete Scheduled Report",
+        "description": "Delete a scheduled report",
+        "operationId": "delete_scheduled_report_api_v1_reports_schedules__schedule_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Schedule Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/sample": {
+      "post": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Generate Sample Report",
+        "description": "Generate a sample report for testing/demonstration",
+        "operationId": "generate_sample_report_api_v1_reports_sample_post",
+        "parameters": [
+          {
+            "name": "report_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/app__agents__report_generator__ReportType",
+              "default": "executive_summary"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ReportFormat",
+              "default": "html"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/analytics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get Report Analytics",
+        "description": "Get analytics about report generation",
+        "operationId": "get_report_analytics_api_v1_reports_analytics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "description": "Root endpoint",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Health check endpoint",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActionItem": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "title": "Action",
+            "description": "Action description"
+          },
+          "owner": {
+            "type": "string",
+            "title": "Owner",
+            "description": "Responsible party"
+          },
+          "timeline": {
+            "type": "string",
+            "title": "Timeline",
+            "description": "Expected timeline"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority",
+            "description": "Priority level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "owner",
+          "timeline",
+          "priority"
+        ],
+        "title": "ActionItem",
+        "description": "Action item for leadership"
+      },
+      "AnalysisProgress": {
+        "properties": {
+          "current_phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Phase"
+          },
+          "percentage": {
+            "type": "number",
+            "title": "Percentage",
+            "default": 0.0
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "title": "AnalysisProgress"
+      },
+      "AnalysisResultsResponse": {
+        "properties": {
+          "project_id": {
+            "type": "integer",
+            "title": "Project Id"
+          },
+          "overall_risk_score": {
+            "type": "number",
+            "title": "Overall Risk Score"
+          },
+          "confidence_score": {
+            "type": "number",
+            "title": "Confidence Score"
+          },
+          "executive_summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__schemas__ExecutiveSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attack_paths": {
+            "items": {
+              "$ref": "#/components/schemas/AttackPathResult"
+            },
+            "type": "array",
+            "title": "Attack Paths",
+            "default": []
+          },
+          "identified_techniques": {
+            "items": {
+              "$ref": "#/components/schemas/IdentifiedTechnique"
+            },
+            "type": "array",
+            "title": "Identified Techniques",
+            "default": []
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityRecommendation"
+            },
+            "type": "array",
+            "title": "Recommendations",
+            "default": []
+          },
+          "system_analysis_results": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "System Analysis Results",
+            "default": []
+          },
+          "control_evaluation_results": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Control Evaluation Results",
+            "default": []
+          },
+          "full_report": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Report"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "overall_risk_score",
+          "confidence_score",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "AnalysisResultsResponse"
+      },
+      "AnalysisStartRequest": {
+        "properties": {
+          "project_id": {
+            "type": "integer",
+            "title": "Project Id"
+          },
+          "input_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Input Ids"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config",
+            "default": {
+              "analysis_depth": "standard",
+              "include_threat_modeling": true,
+              "include_mitigations": true,
+              "include_compliance_check": false,
+              "priority_level": "high"
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "input_ids"
+        ],
+        "title": "AnalysisStartRequest"
+      },
+      "AnalysisStartResponse": {
+        "properties": {
+          "project_id": {
+            "type": "integer",
+            "title": "Project Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "status",
+          "message",
+          "started_at"
+        ],
+        "title": "AnalysisStartResponse"
+      },
+      "AnalysisStatusResponse": {
+        "properties": {
+          "project_id": {
+            "type": "integer",
+            "title": "Project Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnalysisProgress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "status"
+        ],
+        "title": "AnalysisStatusResponse"
+      },
+      "AnalyticsPeriod": {
+        "type": "string",
+        "enum": [
+          "7d",
+          "30d",
+          "90d",
+          "1y"
+        ],
+        "title": "AnalyticsPeriod",
+        "description": "Time periods for analytics"
+      },
+      "AttackPathResult": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "impact": {
+            "type": "string",
+            "title": "Impact"
+          },
+          "likelihood": {
+            "type": "string",
+            "title": "Likelihood"
+          },
+          "techniques": {
+            "items": {
+              "$ref": "#/components/schemas/AttackPathStep"
+            },
+            "type": "array",
+            "title": "Techniques",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "impact",
+          "likelihood"
+        ],
+        "title": "AttackPathResult"
+      },
+      "AttackPathStep": {
+        "properties": {
+          "step": {
+            "type": "integer",
+            "title": "Step"
+          },
+          "technique_id": {
+            "type": "string",
+            "title": "Technique Id"
+          },
+          "technique_name": {
+            "type": "string",
+            "title": "Technique Name"
+          },
+          "tactic": {
+            "type": "string",
+            "title": "Tactic"
+          },
+          "target_component": {
+            "type": "string",
+            "title": "Target Component"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "step",
+          "technique_id",
+          "technique_name",
+          "tactic",
+          "target_component"
+        ],
+        "title": "AttackPathStep"
+      },
+      "Body_login_user_api_v1_auth_login_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^password$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_user_api_v1_auth_login_post"
+      },
+      "Body_predict_risk_legacy_api_v1_predictions_predict_risk_post": {
+        "properties": {
+          "historical_data": {
+            "items": {},
+            "type": "array",
+            "title": "Historical Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "historical_data"
+        ],
+        "title": "Body_predict_risk_legacy_api_v1_predictions_predict_risk_post"
+      },
+      "DashboardMetricsResponse": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period",
+            "description": "Analysis period description"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At",
+            "description": "Report generation timestamp"
+          },
+          "project_metrics": {
+            "$ref": "#/components/schemas/ProjectMetrics"
+          },
+          "risk_metrics": {
+            "$ref": "#/components/schemas/RiskMetrics"
+          },
+          "threat_metrics": {
+            "$ref": "#/components/schemas/ThreatMetrics"
+          },
+          "performance_metrics": {
+            "$ref": "#/components/schemas/PerformanceMetrics"
+          },
+          "trends": {
+            "$ref": "#/components/schemas/TrendAnalysis",
+            "description": "Trend analysis data"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/app__models__analytics__ExecutiveSummary",
+            "description": "Executive summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "generated_at",
+          "project_metrics",
+          "risk_metrics",
+          "threat_metrics",
+          "performance_metrics",
+          "trends",
+          "summary"
+        ],
+        "title": "DashboardMetricsResponse",
+        "description": "Dashboard metrics response"
+      },
+      "ExecutiveReportRequest": {
+        "properties": {
+          "report_type": {
+            "$ref": "#/components/schemas/app__models__analytics__ReportType",
+            "description": "Type of report to generate",
+            "default": "monthly"
+          },
+          "include_charts": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Include Charts",
+            "description": "Include chart data",
+            "default": true
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "json",
+              "pdf"
+            ],
+            "title": "Format",
+            "description": "Report format",
+            "default": "json"
+          },
+          "sections": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sections",
+            "description": "Report sections to include",
+            "default": [
+              "summary",
+              "metrics",
+              "trends",
+              "recommendations"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ExecutiveReportRequest",
+        "description": "Request model for executive reports"
+      },
+      "ExecutiveReportResponse": {
+        "properties": {
+          "report_type": {
+            "type": "string",
+            "title": "Report Type",
+            "description": "Report type"
+          },
+          "reporting_period": {
+            "type": "string",
+            "title": "Reporting Period",
+            "description": "Reporting period"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At",
+            "description": "Generation timestamp"
+          },
+          "executive_summary": {
+            "$ref": "#/components/schemas/app__models__analytics__ExecutiveSummary",
+            "description": "Executive summary"
+          },
+          "key_metrics": {
+            "$ref": "#/components/schemas/DashboardMetricsResponse",
+            "description": "Key performance metrics"
+          },
+          "strategic_insights": {
+            "items": {
+              "$ref": "#/components/schemas/StrategicRecommendation"
+            },
+            "type": "array",
+            "title": "Strategic Insights",
+            "description": "Strategic recommendations"
+          },
+          "industry_comparison": {
+            "$ref": "#/components/schemas/IndustryComparison",
+            "description": "Industry comparison"
+          },
+          "action_items": {
+            "items": {
+              "$ref": "#/components/schemas/ActionItem"
+            },
+            "type": "array",
+            "title": "Action Items",
+            "description": "Priority action items"
+          },
+          "risk_outlook": {
+            "$ref": "#/components/schemas/RiskOutlook"
+          }
+        },
+        "type": "object",
+        "required": [
+          "report_type",
+          "reporting_period",
+          "generated_at",
+          "executive_summary",
+          "key_metrics",
+          "strategic_insights",
+          "industry_comparison",
+          "action_items",
+          "risk_outlook"
+        ],
+        "title": "ExecutiveReportResponse",
+        "description": "Executive report response"
+      },
+      "FutureRiskResponse": {
+        "properties": {
+          "current_risk": {
+            "type": "number",
+            "title": "Current Risk"
+          },
+          "days_ahead": {
+            "type": "integer",
+            "title": "Days Ahead"
+          },
+          "scenarios": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Scenarios"
+          },
+          "recommendations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Recommendations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_risk",
+          "days_ahead",
+          "scenarios",
+          "recommendations"
+        ],
+        "title": "FutureRiskResponse",
+        "description": "Response model for future risk predictions"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HistoricalDataPoint": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "ISO timestamp of the data point"
+          },
+          "risk_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Risk Score",
+            "description": "Risk score (0-1)"
+          },
+          "threat_data": {
+            "$ref": "#/components/schemas/ThreatDataInput"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "risk_score",
+          "threat_data"
+        ],
+        "title": "HistoricalDataPoint",
+        "description": "Historical data point for model training"
+      },
+      "IdentifiedTechnique": {
+        "properties": {
+          "technique_id": {
+            "type": "string",
+            "title": "Technique Id"
+          },
+          "technique_name": {
+            "type": "string",
+            "title": "Technique Name"
+          },
+          "tactic": {
+            "type": "string",
+            "title": "Tactic"
+          },
+          "applicability_score": {
+            "type": "number",
+            "title": "Applicability Score"
+          },
+          "system_component": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "System Component"
+          },
+          "rationale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rationale"
+          },
+          "prerequisites": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Prerequisites",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "technique_id",
+          "technique_name",
+          "tactic",
+          "applicability_score"
+        ],
+        "title": "IdentifiedTechnique"
+      },
+      "IndustryComparison": {
+        "properties": {
+          "industry_average_risk": {
+            "type": "number",
+            "title": "Industry Average Risk",
+            "description": "Industry average risk score"
+          },
+          "industry_completion_rate": {
+            "type": "number",
+            "title": "Industry Completion Rate",
+            "description": "Industry average completion rate"
+          },
+          "peer_comparison": {
+            "type": "string",
+            "title": "Peer Comparison",
+            "description": "Peer comparison result"
+          },
+          "benchmark_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Benchmark Date",
+            "description": "Benchmark data timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "industry_average_risk",
+          "industry_completion_rate",
+          "peer_comparison",
+          "benchmark_date"
+        ],
+        "title": "IndustryComparison",
+        "description": "Industry benchmarking data"
+      },
+      "PasswordChange": {
+        "properties": {
+          "current_password": {
+            "type": "string",
+            "title": "Current Password"
+          },
+          "new_password": {
+            "type": "string",
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "PasswordChange",
+        "description": "Password change model"
+      },
+      "PerformanceMetrics": {
+        "properties": {
+          "average_analysis_time_minutes": {
+            "type": "number",
+            "title": "Average Analysis Time Minutes",
+            "description": "Average analysis completion time"
+          },
+          "success_rate": {
+            "type": "number",
+            "title": "Success Rate",
+            "description": "Analysis success rate percentage"
+          },
+          "total_analyses": {
+            "type": "integer",
+            "title": "Total Analyses",
+            "description": "Total analyses performed"
+          },
+          "successful_analyses": {
+            "type": "integer",
+            "title": "Successful Analyses",
+            "description": "Successfully completed analyses"
+          },
+          "system_efficiency": {
+            "type": "number",
+            "title": "System Efficiency",
+            "description": "Overall system efficiency score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "average_analysis_time_minutes",
+          "success_rate",
+          "total_analyses",
+          "successful_analyses",
+          "system_efficiency"
+        ],
+        "title": "PerformanceMetrics",
+        "description": "System performance metrics"
+      },
+      "ProjectAnalyticsResponse": {
+        "properties": {
+          "project_info": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Project Info",
+            "description": "Project information"
+          },
+          "risk_assessment": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Risk Assessment",
+            "description": "Risk assessment details"
+          },
+          "attack_paths": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Attack Paths",
+            "description": "Identified attack paths"
+          },
+          "recommendations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Recommendations",
+            "description": "Security recommendations"
+          },
+          "threat_intelligence": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threat Intelligence",
+            "description": "Threat intelligence data"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_info",
+          "risk_assessment",
+          "attack_paths",
+          "recommendations"
+        ],
+        "title": "ProjectAnalyticsResponse",
+        "description": "Detailed project analytics response"
+      },
+      "ProjectCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "ProjectCreate"
+      },
+      "ProjectMetrics": {
+        "properties": {
+          "total_projects": {
+            "type": "integer",
+            "title": "Total Projects",
+            "description": "Total number of projects"
+          },
+          "recent_projects": {
+            "type": "integer",
+            "title": "Recent Projects",
+            "description": "Recently created projects"
+          },
+          "active_projects": {
+            "type": "integer",
+            "title": "Active Projects",
+            "description": "Currently active projects"
+          },
+          "completion_rate": {
+            "type": "number",
+            "title": "Completion Rate",
+            "description": "Project completion rate percentage"
+          },
+          "status_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Status Distribution",
+            "description": "Distribution by project status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_projects",
+          "recent_projects",
+          "active_projects",
+          "completion_rate",
+          "status_distribution"
+        ],
+        "title": "ProjectMetrics",
+        "description": "Project-related metrics"
+      },
+      "ProjectResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProjectResponse"
+      },
+      "ProjectUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "title": "ProjectUpdate"
+      },
+      "RefreshTokenRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshTokenRequest",
+        "description": "Refresh token request model"
+      },
+      "ReportFormat": {
+        "type": "string",
+        "enum": [
+          "pdf",
+          "html",
+          "docx",
+          "json",
+          "markdown"
+        ],
+        "title": "ReportFormat",
+        "description": "Supported report formats"
+      },
+      "ReportGenerationRequest": {
+        "properties": {
+          "report_type": {
+            "$ref": "#/components/schemas/app__agents__report_generator__ReportType"
+          },
+          "format": {
+            "$ref": "#/components/schemas/ReportFormat"
+          },
+          "project_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Project Ids"
+          },
+          "date_range": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Range"
+          },
+          "include_charts": {
+            "type": "boolean",
+            "title": "Include Charts",
+            "default": true
+          },
+          "include_mitre_mapping": {
+            "type": "boolean",
+            "title": "Include Mitre Mapping",
+            "default": true
+          },
+          "include_recommendations": {
+            "type": "boolean",
+            "title": "Include Recommendations",
+            "default": true
+          },
+          "custom_sections": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Sections"
+          },
+          "audience_level": {
+            "type": "string",
+            "pattern": "^(executive|technical|operational)$",
+            "title": "Audience Level",
+            "default": "technical"
+          },
+          "branding": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branding"
+          }
+        },
+        "type": "object",
+        "required": [
+          "report_type",
+          "format",
+          "project_ids"
+        ],
+        "title": "ReportGenerationRequest",
+        "description": "Request model for report generation"
+      },
+      "ReportListResponse": {
+        "properties": {
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/ReportResponse"
+            },
+            "type": "array",
+            "title": "Reports"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reports",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "ReportListResponse",
+        "description": "Response model for report listing"
+      },
+      "ReportResponse": {
+        "properties": {
+          "report_id": {
+            "type": "string",
+            "title": "Report Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "report_type": {
+            "$ref": "#/components/schemas/ReportType-Output"
+          },
+          "format": {
+            "$ref": "#/components/schemas/ReportFormat"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "file_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Size"
+          },
+          "download_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Download Url"
+          },
+          "preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Url"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "report_id",
+          "title",
+          "report_type",
+          "format",
+          "status",
+          "generated_at",
+          "metadata"
+        ],
+        "title": "ReportResponse",
+        "description": "Response model for generated reports"
+      },
+      "ReportScheduleRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "report_request": {
+            "$ref": "#/components/schemas/ReportGenerationRequest"
+          },
+          "schedule_cron": {
+            "type": "string",
+            "title": "Schedule Cron"
+          },
+          "email_recipients": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Email Recipients",
+            "default": []
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "report_request",
+          "schedule_cron"
+        ],
+        "title": "ReportScheduleRequest",
+        "description": "Request model for scheduled reports"
+      },
+      "ReportScheduleResponse": {
+        "properties": {
+          "schedule_id": {
+            "type": "string",
+            "title": "Schedule Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "report_type": {
+            "$ref": "#/components/schemas/ReportType-Output"
+          },
+          "schedule_cron": {
+            "type": "string",
+            "title": "Schedule Cron"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_run": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run"
+          },
+          "next_run": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Run"
+          }
+        },
+        "type": "object",
+        "required": [
+          "schedule_id",
+          "name",
+          "description",
+          "report_type",
+          "schedule_cron",
+          "is_active",
+          "created_at",
+          "last_run",
+          "next_run"
+        ],
+        "title": "ReportScheduleResponse",
+        "description": "Response model for scheduled reports"
+      },
+      "ReportType-Output": {
+        "type": "string",
+        "enum": [
+          "executive_summary",
+          "technical_detailed",
+          "risk_assessment",
+          "compliance_audit",
+          "penetration_test",
+          "incident_response",
+          "threat_landscape",
+          "mitigation_plan"
+        ],
+        "title": "ReportType",
+        "description": "Available report types"
+      },
+      "RiskDistribution": {
+        "properties": {
+          "low": {
+            "type": "integer",
+            "title": "Low",
+            "description": "Count of low-risk items",
+            "default": 0
+          },
+          "medium": {
+            "type": "integer",
+            "title": "Medium",
+            "description": "Count of medium-risk items",
+            "default": 0
+          },
+          "high": {
+            "type": "integer",
+            "title": "High",
+            "description": "Count of high-risk items",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "RiskDistribution",
+        "description": "Risk level distribution"
+      },
+      "RiskLevel": {
+        "type": "string",
+        "enum": [
+          "Low",
+          "Medium",
+          "High"
+        ],
+        "title": "RiskLevel",
+        "description": "Risk level categorization"
+      },
+      "RiskMetrics": {
+        "properties": {
+          "average_risk_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Average Risk Score",
+            "description": "Average risk score"
+          },
+          "average_confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Average Confidence",
+            "description": "Average confidence score"
+          },
+          "risk_distribution": {
+            "$ref": "#/components/schemas/RiskDistribution"
+          },
+          "high_risk_projects": {
+            "type": "integer",
+            "title": "High Risk Projects",
+            "description": "Count of high-risk projects"
+          },
+          "risk_trend": {
+            "$ref": "#/components/schemas/TrendDirection",
+            "description": "Overall risk trend"
+          }
+        },
+        "type": "object",
+        "required": [
+          "average_risk_score",
+          "average_confidence",
+          "risk_distribution",
+          "high_risk_projects",
+          "risk_trend"
+        ],
+        "title": "RiskMetrics",
+        "description": "Risk assessment metrics"
+      },
+      "RiskOutlook": {
+        "properties": {
+          "short_term": {
+            "type": "string",
+            "title": "Short Term",
+            "description": "Short-term risk outlook"
+          },
+          "long_term": {
+            "type": "string",
+            "title": "Long Term",
+            "description": "Long-term risk outlook"
+          },
+          "confidence": {
+            "type": "string",
+            "title": "Confidence",
+            "description": "Prediction confidence level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "short_term",
+          "long_term",
+          "confidence"
+        ],
+        "title": "RiskOutlook",
+        "description": "Risk outlook and predictions"
+      },
+      "RiskPredictionRequest": {
+        "properties": {
+          "project_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Ids",
+            "description": "Specific projects to analyze (None for all)"
+          },
+          "prediction_horizon_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 90.0,
+                "minimum": 7.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prediction Horizon Days",
+            "description": "Prediction time horizon",
+            "default": 30
+          },
+          "confidence_threshold": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Threshold",
+            "description": "Minimum confidence level",
+            "default": 0.7
+          }
+        },
+        "type": "object",
+        "title": "RiskPredictionRequest",
+        "description": "Request model for AI risk predictions"
+      },
+      "RiskPredictionResult": {
+        "properties": {
+          "project_id": {
+            "type": "integer",
+            "title": "Project Id",
+            "description": "Project identifier"
+          },
+          "project_name": {
+            "type": "string",
+            "title": "Project Name",
+            "description": "Project name"
+          },
+          "current_risk_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Current Risk Score",
+            "description": "Current risk score"
+          },
+          "predicted_risk_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Predicted Risk Score",
+            "description": "Predicted future risk score"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Prediction confidence"
+          },
+          "risk_factors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risk Factors",
+            "description": "Key risk factors identified"
+          },
+          "recommendations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Recommendations",
+            "description": "Risk mitigation recommendations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "project_name",
+          "current_risk_score",
+          "predicted_risk_score",
+          "confidence",
+          "risk_factors",
+          "recommendations"
+        ],
+        "title": "RiskPredictionResult",
+        "description": "Individual risk prediction result"
+      },
+      "SecurityRecommendation": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority"
+          },
+          "attack_technique": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attack Technique"
+          },
+          "affected_assets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Affected Assets",
+            "default": []
+          },
+          "implementation_effort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Implementation Effort"
+          },
+          "cost_estimate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Estimate"
+          },
+          "timeline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "priority"
+        ],
+        "title": "SecurityRecommendation"
+      },
+      "StrategicRecommendation": {
+        "properties": {
+          "priority": {
+            "type": "string",
+            "title": "Priority",
+            "description": "Recommendation priority level"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Recommendation category"
+          },
+          "recommendation": {
+            "type": "string",
+            "title": "Recommendation",
+            "description": "Recommendation text"
+          },
+          "impact": {
+            "type": "string",
+            "title": "Impact",
+            "description": "Expected impact"
+          }
+        },
+        "type": "object",
+        "required": [
+          "priority",
+          "category",
+          "recommendation",
+          "impact"
+        ],
+        "title": "StrategicRecommendation",
+        "description": "Strategic recommendation item"
+      },
+      "SystemInputCreate": {
+        "properties": {
+          "input_type": {
+            "type": "string",
+            "pattern": "^(text|json|file)$",
+            "title": "Input Type"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filename"
+          }
+        },
+        "type": "object",
+        "required": [
+          "input_type",
+          "content"
+        ],
+        "title": "SystemInputCreate"
+      },
+      "ThreatDataInput": {
+        "properties": {
+          "days_since_last_analysis": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Days Since Last Analysis",
+            "description": "Days since last analysis",
+            "default": 0
+          },
+          "analysis_frequency": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Analysis Frequency",
+            "description": "How often analyses are performed",
+            "default": 1
+          },
+          "unique_attack_paths": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Unique Attack Paths",
+            "description": "Number of unique attack paths identified",
+            "default": 0
+          },
+          "avg_attack_complexity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Avg Attack Complexity",
+            "description": "Average complexity of attacks (0-1)",
+            "default": 0.5
+          },
+          "critical_vulnerabilities": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Critical Vulnerabilities",
+            "description": "Number of critical vulnerabilities",
+            "default": 0
+          },
+          "public_endpoints": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Public Endpoints",
+            "description": "Number of public-facing endpoints",
+            "default": 0
+          },
+          "trust_boundaries": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Trust Boundaries",
+            "description": "Number of trust boundaries",
+            "default": 1
+          },
+          "data_sensitivity_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Data Sensitivity Score",
+            "description": "Data sensitivity score (0-1)",
+            "default": 0.5
+          },
+          "mitre_technique_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Mitre Technique Count",
+            "description": "Number of MITRE ATT&CK techniques identified",
+            "default": 0
+          },
+          "mitre_tactic_coverage": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Mitre Tactic Coverage",
+            "description": "Number of MITRE tactics covered",
+            "default": 0
+          },
+          "high_impact_techniques": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "High Impact Techniques",
+            "description": "Number of high-impact techniques",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "ThreatDataInput",
+        "description": "Input data for threat analysis predictions"
+      },
+      "ThreatMetrics": {
+        "properties": {
+          "total_attack_paths": {
+            "type": "integer",
+            "title": "Total Attack Paths",
+            "description": "Total attack paths identified"
+          },
+          "high_priority_paths": {
+            "type": "integer",
+            "title": "High Priority Paths",
+            "description": "High-priority attack paths"
+          },
+          "total_recommendations": {
+            "type": "integer",
+            "title": "Total Recommendations",
+            "description": "Total recommendations generated"
+          },
+          "critical_recommendations": {
+            "type": "integer",
+            "title": "Critical Recommendations",
+            "description": "Critical recommendations count"
+          },
+          "common_techniques": {
+            "items": {
+              "$ref": "#/components/schemas/ThreatTechnique"
+            },
+            "type": "array",
+            "title": "Common Techniques",
+            "description": "Most common attack techniques"
+          },
+          "threat_coverage": {
+            "type": "number",
+            "title": "Threat Coverage",
+            "description": "MITRE ATT&CK coverage percentage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_attack_paths",
+          "high_priority_paths",
+          "total_recommendations",
+          "critical_recommendations",
+          "common_techniques",
+          "threat_coverage"
+        ],
+        "title": "ThreatMetrics",
+        "description": "Threat landscape metrics"
+      },
+      "ThreatTechnique": {
+        "properties": {
+          "technique": {
+            "type": "string",
+            "title": "Technique",
+            "description": "MITRE ATT&CK technique"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Frequency of occurrence"
+          },
+          "risk_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RiskLevel"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Associated risk level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "technique",
+          "count"
+        ],
+        "title": "ThreatTechnique",
+        "description": "Common threat technique with frequency"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "expires_in"
+        ],
+        "title": "TokenResponse",
+        "description": "Token response model"
+      },
+      "TrendAnalysis": {
+        "properties": {
+          "project_creation_trend": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPoint"
+            },
+            "type": "array",
+            "title": "Project Creation Trend",
+            "description": "Project creation trend over time"
+          },
+          "risk_score_trend": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPoint"
+            },
+            "type": "array",
+            "title": "Risk Score Trend",
+            "description": "Risk score trend over time"
+          },
+          "trend_analysis": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Trend Analysis",
+            "description": "Trend analysis insights"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_creation_trend",
+          "risk_score_trend",
+          "trend_analysis"
+        ],
+        "title": "TrendAnalysis",
+        "description": "Trend analysis results"
+      },
+      "TrendDirection": {
+        "type": "string",
+        "enum": [
+          "increasing",
+          "decreasing",
+          "stable"
+        ],
+        "title": "TrendDirection",
+        "description": "Trend direction indicators"
+      },
+      "TrendPoint": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "Date in YYYY-MM-DD format"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value",
+            "description": "Metric value"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count",
+            "description": "Count if applicable"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "value"
+        ],
+        "title": "TrendPoint",
+        "description": "Single point in a trend analysis"
+      },
+      "User": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "is_superuser": {
+            "type": "boolean",
+            "title": "Is Superuser",
+            "default": false
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "id"
+        ],
+        "title": "User",
+        "description": "User response schema"
+      },
+      "UserCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "is_superuser": {
+            "type": "boolean",
+            "title": "Is Superuser",
+            "default": false
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "UserCreate",
+        "description": "User creation schema"
+      },
+      "UserProfile": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "title": "UserProfile",
+        "description": "User profile update model"
+      },
+      "UserRegistration": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "UserRegistration",
+        "description": "User registration model"
+      },
+      "UserUpdate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "is_superuser": {
+            "type": "boolean",
+            "title": "Is Superuser",
+            "default": false
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "UserUpdate",
+        "description": "User update schema"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "app__agents__report_generator__ReportType": {
+        "type": "string",
+        "enum": [
+          "executive_summary",
+          "technical_detailed",
+          "risk_assessment",
+          "compliance_audit",
+          "penetration_test",
+          "incident_response",
+          "threat_landscape",
+          "mitigation_plan"
+        ],
+        "title": "ReportType",
+        "description": "Available report types"
+      },
+      "app__api__endpoints__predictions__RiskPredictionResponse": {
+        "properties": {
+          "risk_score": {
+            "type": "number",
+            "title": "Risk Score",
+            "description": "Predicted risk score (0-1)"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "description": "Prediction confidence (0-1)"
+          },
+          "model_predictions": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Model Predictions",
+            "description": "Individual model predictions"
+          },
+          "feature_contributions": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Feature Contributions",
+            "description": "Feature contribution analysis"
+          }
+        },
+        "type": "object",
+        "required": [
+          "risk_score",
+          "confidence",
+          "model_predictions",
+          "feature_contributions"
+        ],
+        "title": "RiskPredictionResponse",
+        "description": "Response model for risk predictions"
+      },
+      "app__api__endpoints__predictions__TrendAnalysisResponse": {
+        "properties": {
+          "trend": {
+            "type": "string",
+            "title": "Trend"
+          },
+          "slope": {
+            "type": "number",
+            "title": "Slope"
+          },
+          "correlation": {
+            "type": "number",
+            "title": "Correlation"
+          },
+          "recent_avg": {
+            "type": "number",
+            "title": "Recent Avg"
+          },
+          "historical_avg": {
+            "type": "number",
+            "title": "Historical Avg"
+          },
+          "volatility": {
+            "type": "number",
+            "title": "Volatility"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "data_points": {
+            "type": "integer",
+            "title": "Data Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trend",
+          "slope",
+          "correlation",
+          "recent_avg",
+          "historical_avg",
+          "volatility",
+          "confidence",
+          "data_points"
+        ],
+        "title": "TrendAnalysisResponse",
+        "description": "Response model for trend analysis"
+      },
+      "app__models__analytics__ExecutiveSummary": {
+        "properties": {
+          "overall_status": {
+            "type": "string",
+            "title": "Overall Status",
+            "description": "Overall security status"
+          },
+          "status_color": {
+            "type": "string",
+            "title": "Status Color",
+            "description": "Status indicator color"
+          },
+          "health_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Health Score",
+            "description": "Overall health score"
+          },
+          "key_insight": {
+            "type": "string",
+            "title": "Key Insight",
+            "description": "Key business insight"
+          },
+          "priority_action": {
+            "type": "string",
+            "title": "Priority Action",
+            "description": "Priority action item"
+          }
+        },
+        "type": "object",
+        "required": [
+          "overall_status",
+          "status_color",
+          "health_score",
+          "key_insight",
+          "priority_action"
+        ],
+        "title": "ExecutiveSummary",
+        "description": "Executive summary insights"
+      },
+      "app__models__analytics__ReportType": {
+        "type": "string",
+        "enum": [
+          "weekly",
+          "monthly",
+          "quarterly",
+          "yearly"
+        ],
+        "title": "ReportType",
+        "description": "Available report types"
+      },
+      "app__models__analytics__RiskPredictionResponse": {
+        "properties": {
+          "prediction_horizon_days": {
+            "type": "integer",
+            "title": "Prediction Horizon Days",
+            "description": "Prediction time horizon"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At",
+            "description": "Prediction generation timestamp"
+          },
+          "total_projects_analyzed": {
+            "type": "integer",
+            "title": "Total Projects Analyzed",
+            "description": "Number of projects analyzed"
+          },
+          "high_confidence_predictions": {
+            "type": "integer",
+            "title": "High Confidence Predictions",
+            "description": "Count of high-confidence predictions"
+          },
+          "predictions": {
+            "items": {
+              "$ref": "#/components/schemas/RiskPredictionResult"
+            },
+            "type": "array",
+            "title": "Predictions",
+            "description": "Individual project predictions"
+          },
+          "summary_insights": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Summary Insights",
+            "description": "Summary insights and trends"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prediction_horizon_days",
+          "generated_at",
+          "total_projects_analyzed",
+          "high_confidence_predictions",
+          "predictions",
+          "summary_insights"
+        ],
+        "title": "RiskPredictionResponse",
+        "description": "AI risk prediction response"
+      },
+      "app__models__analytics__TrendAnalysisResponse": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period",
+            "description": "Analysis period"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Metrics",
+            "description": "Analyzed metrics"
+          },
+          "trends": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/TrendPoint"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Trends",
+            "description": "Trend data by metric"
+          },
+          "insights": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Insights",
+            "description": "Generated insights"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "metrics",
+          "trends",
+          "insights"
+        ],
+        "title": "TrendAnalysisResponse",
+        "description": "Trend analysis response"
+      },
+      "app__models__schemas__ExecutiveSummary": {
+        "properties": {
+          "overview": {
+            "type": "string",
+            "title": "Overview"
+          },
+          "key_findings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Key Findings",
+            "default": []
+          },
+          "priority_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Priority Actions",
+            "default": []
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          },
+          "business_impact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Impact"
+          }
+        },
+        "type": "object",
+        "required": [
+          "overview",
+          "risk_level"
+        ],
+        "title": "ExecutiveSummary"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
