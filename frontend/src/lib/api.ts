@@ -206,6 +206,39 @@ class ApiService {
 		return response.data;
 	}
 
+	// Enhanced AI Methods
+	async getEnhancedAICapabilities(): Promise<ApiResponse<any>> {
+		const response = await this.client.get('/enhanced-ai/capabilities');
+		return response.data;
+	}
+
+	async getTrendingInsights(limit: number = 5): Promise<ApiResponse<any[]>> {
+		const response = await this.client.get(`/enhanced-ai/insights/trending?limit=${limit}`);
+		return response.data;
+	}
+
+	async performAdvancedAnalysis(analysisRequest: AdvancedAnalysisRequest): Promise<ApiResponse<any>> {
+		const response = await this.client.post('/enhanced-ai/analyze/advanced', analysisRequest);
+		return response.data;
+	}
+
+	async askNaturalLanguageQuery(queryRequest: NaturalLanguageQueryRequest): Promise<ApiResponse<any>> {
+		const response = await this.client.post('/enhanced-ai/query/natural-language', queryRequest);
+		return response.data;
+	}
+
+	async predictRiskEvolution(riskRequest: RiskPredictionRequest): Promise<ApiResponse<any>> {
+		const response = await this.client.post('/enhanced-ai/predict/risk', riskRequest);
+		return response.data;
+	}
+
+	async batchAnalyze(descriptions: string[]): Promise<ApiResponse<any[]>> {
+		const response = await this.client.post('/enhanced-ai/batch/analyze', null, {
+			params: { descriptions: descriptions.join(',') }
+		});
+		return response.data;
+	}
+
 	// Analysis polling with new endpoints
 	async pollAnalysisStatus(projectId: number, onUpdate?: (status: AnalysisStatusResponse) => void): Promise<AnalysisStatusResponse> {
 		return new Promise((resolve, reject) => {
@@ -551,6 +584,33 @@ export interface ThreatModelReport {
 		framework: string;
 		version: string;
 	};
+}
+
+// Enhanced AI Type Definitions
+export interface AdvancedAnalysisRequest {
+	system_description: string;
+	analysis_mode: 'STANDARD' | 'DEEP' | 'LIGHTNING' | 'COMPREHENSIVE';
+	context_data?: {
+		industry?: string;
+		user_count?: number;
+		data_classification?: string;
+		compliance_requirements?: string[];
+		existing_controls?: string[];
+	};
+}
+
+export interface NaturalLanguageQueryRequest {
+	question: string;
+	context?: string;
+	analysis_context?: any;
+}
+
+export interface RiskPredictionRequest {
+	system_description: string;
+	time_horizon_days: number;
+	scenario_type?: 'optimistic' | 'realistic' | 'pessimistic';
+	current_controls?: string[];
+	historical_data?: any[];
 }
 
 // Export singleton instance
