@@ -85,7 +85,9 @@ export class ProjectsPage {
   }
 
   async clickProject(projectName: string) {
-    await this.page.click(`text=${projectName}`);
+    // Find the project card containing the project name and click its "View Details" link
+    const projectCard = this.page.locator('.border').filter({ hasText: projectName });
+    await projectCard.locator('a:has-text("View Details")').first().click();
   }
 
   async deleteProject(projectName: string) {
@@ -113,13 +115,24 @@ export class ProjectDetailPage {
 
   async addSystemInput(inputData = TestData.systemInput) {
     await this.clickTab('inputs');
+    
+    // Wait for the tab content to be fully loaded
+    await this.page.waitForTimeout(500);
+    
     await this.page.click('button:has-text("+ Add Input")');
     
-    await this.page.fill('input[placeholder="System description title"]', inputData.title);
-    await this.page.fill('textarea[placeholder="Brief description"]', inputData.description);
-    await this.page.fill('textarea[placeholder="Enter system description"]', inputData.content);
+    // Wait for the modal to appear
+    await this.page.waitForSelector('text=Add System Input', { timeout: 5000 });
     
-    await this.page.click('button:has-text("Add System Input")');
+    await this.page.fill('input[placeholder*="Web Application Architecture"]', inputData.title);
+    await this.page.fill('textarea[placeholder="Optional description of this input"]', inputData.description);
+    await this.page.fill('textarea[placeholder*="Describe your system architecture"]', inputData.content);
+    
+    // Click the submit button in the modal
+    await this.page.click('button[type="submit"]:has-text("Add Input")');
+    
+    // Wait for the modal to close and the input to be added
+    await this.page.waitForSelector('text=Add System Input', { state: 'hidden', timeout: 10000 });
     await this.page.waitForLoadState('networkidle');
   }
 

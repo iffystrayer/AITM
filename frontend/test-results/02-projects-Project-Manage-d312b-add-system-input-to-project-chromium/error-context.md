@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- complementary:
+  - img
+  - heading "AITM" [level=1]
+  - paragraph: AI Threat Modeler
+  - button "Collapse sidebar":
+    - img
+  - text: Backend Offline
+  - navigation:
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: /
+          - img
+          - text: Dashboard
+      - listitem:
+        - link "Projects":
+          - /url: /projects
+          - img
+          - text: Projects
+      - listitem:
+        - link "Analysis":
+          - /url: /analysis
+          - img
+          - text: Analysis
+      - listitem:
+        - link "Assets":
+          - /url: /assets
+          - img
+          - text: Assets
+      - listitem:
+        - link "Reports":
+          - /url: /reports
+          - img
+          - text: Reports
+      - listitem:
+        - link "MITRE ATT&CK":
+          - /url: /mitre
+          - img
+          - text: MITRE ATT&CK
+  - text: Version 1.0.0
+- banner:
+  - heading "Projects" [level=1]
+  - button "Toggle theme":
+    - img
+  - button "User":
+    - img
+    - text: User
+    - img
+- main:
+  - link:
+    - /url: /projects
+    - img
+  - heading "E2E Test Project 1754796426584" [level=1]
+  - paragraph: Automated test project for end-to-end testing
+  - text: "created Created: Aug 10, 2025, 03:27 AM"
+  - navigation:
+    - button "Overview"
+    - button "System Inputs (2)"
+    - button "Analysis"
+    - button "Results"
+  - heading "System Inputs" [level=3]
+  - button "+ Add Input"
+  - heading "undefined" [level=4]
+  - paragraph: undefined
+  - text: Aug 10, 2025, 03:36 AM
+  - paragraph: Test system with web frontend and backend API
+  - heading "undefined" [level=4]
+  - paragraph: undefined
+  - text: Aug 10, 2025, 04:09 AM
+  - paragraph: Test system with web frontend and backend API
+- text: Project - AITM
+```

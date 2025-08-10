@@ -79,14 +79,36 @@ test.describe('Project Management', () => {
   });
 
   test('should navigate to project details', async ({ projectsPage, projectDetailPage }) => {
-    await test.step('Navigate to projects and click on project', async () => {
+    let testProjectName = createdProjectName;
+    
+    await test.step('Navigate to projects and ensure a project exists', async () => {
       await projectsPage.goto();
-      await projectsPage.page.click(`text=${createdProjectName}`);
+      
+      // If no project name from previous tests, create one or use an existing one
+      if (!testProjectName) {
+        const existingProject = await projectsPage.page.locator('.border h3').first();
+        if (await existingProject.isVisible()) {
+          testProjectName = await existingProject.textContent() || 'Demo Banking Application';
+        } else {
+          // Create a new project for this test
+          const timestamp = Date.now();
+          const projectData = {
+            name: `Navigation Test Project ${timestamp}`,
+            description: 'Project for testing navigation'
+          };
+          testProjectName = projectData.name;
+          await projectsPage.createProject(projectData);
+        }
+      }
+      
+      // Find the project card containing the project name and click its "View Details" link
+      const projectCard = projectsPage.page.locator('.border').filter({ hasText: testProjectName });
+      await projectCard.locator('a:has-text("View Details")').first().click();
     });
 
     await test.step('Verify project detail page loads', async () => {
-      await expect(projectDetailPage.page).toHaveTitle(new RegExp(createdProjectName));
-      await expect(projectDetailPage.page.locator(`h1:has-text("${createdProjectName}")`)).toBeVisible();
+      await expect(projectDetailPage.page).toHaveTitle(new RegExp(testProjectName));
+      await expect(projectDetailPage.page.locator(`h1:has-text("${testProjectName}")`)).toBeVisible();
     });
 
     await test.step('Verify project tabs are present', async () => {
@@ -97,7 +119,8 @@ test.describe('Project Management', () => {
     });
 
     await test.step('Verify back navigation works', async () => {
-      await projectDetailPage.page.click('a[href="/projects"]');
+      // Use the back arrow button at the top of the project detail page
+      await projectDetailPage.page.click('a[href="/projects"] svg, a[href="/projects"]');
       await expect(projectDetailPage.page.locator('h2:has-text("Threat Modeling Projects")')).toBeVisible();
     });
   });
@@ -105,7 +128,9 @@ test.describe('Project Management', () => {
   test('should add system input to project', async ({ projectsPage, projectDetailPage }) => {
     await test.step('Navigate to project details', async () => {
       await projectsPage.goto();
-      await projectsPage.page.click(`text=${createdProjectName}`);
+      // Find the project card containing the project name and click its "View Details" link
+      const projectCard = projectsPage.page.locator('.border').filter({ hasText: createdProjectName });
+      await projectCard.locator('a:has-text("View Details")').first().click();
     });
 
     await test.step('Add system input', async () => {
@@ -140,7 +165,9 @@ test.describe('Project Management', () => {
       };
       
       await projectsPage.createProject(emptyProjectData);
-      await projectsPage.page.click(`text=${emptyProjectData.name}`);
+      // Find the project card containing the project name and click its "View Details" link
+      const projectCard = projectsPage.page.locator('.border').filter({ hasText: emptyProjectData.name });
+      await projectCard.locator('a:has-text("View Details")').first().click();
     });
 
     await test.step('Verify empty system inputs state', async () => {

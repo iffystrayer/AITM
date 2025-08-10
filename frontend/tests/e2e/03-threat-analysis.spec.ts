@@ -21,8 +21,10 @@ test.describe('Threat Analysis Workflow', () => {
     await page.click('button:has-text("Create Project")');
     await page.waitForLoadState('networkidle');
     
-    // Add system input
-    await page.click(`text=${testProjectName}`);
+    // Add system input  
+    // Find the project card containing the project name and click its "View Details" link
+    const projectCard = page.locator('.border').filter({ hasText: testProjectName });
+    await projectCard.locator('a:has-text("View Details")').first().click();
     await page.click('button:has-text("System Inputs")');
     await page.click('button:has-text("+ Add Input")');
     
@@ -38,7 +40,9 @@ test.describe('Threat Analysis Workflow', () => {
   test('should configure and start threat analysis', async ({ projectsPage, projectDetailPage }) => {
     await test.step('Navigate to test project', async () => {
       await projectsPage.goto();
-      await projectsPage.page.click(`text=${testProjectName}`);
+      // Find the project card containing the project name and click its "View Details" link
+      const projectCard = projectsPage.page.locator('.border').filter({ hasText: testProjectName });
+      await projectCard.locator('a:has-text("View Details")').first().click();
     });
 
     await test.step('Navigate to analysis tab', async () => {
@@ -232,7 +236,9 @@ test.describe('Threat Analysis Workflow', () => {
         description: 'Project for testing analysis validation'
       });
       
-      await projectsPage.page.click(`text=${validationProjectName}`);
+      // Find the project card containing the project name and click its "View Details" link
+      const projectCard = projectsPage.page.locator('.border').filter({ hasText: validationProjectName });
+      await projectCard.locator('a:has-text("View Details")').first().click();
     });
 
     await test.step('Try to start analysis without system inputs', async () => {
