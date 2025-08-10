@@ -1,13 +1,13 @@
-<script lang="ts">
+<script>
 	import { onMount } from 'svelte';
 	import { TrendingUp, TrendingDown, Minus, AlertTriangle, Shield, Activity, Users } from 'lucide-svelte';
 
-	export let title: string;
-	export let value: string | number;
-	export let change: number | null = null;
-	export let changeType: 'increase' | 'decrease' | 'neutral' = 'neutral';
-	export let icon: string = 'activity';
-	export let color: 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'gray' = 'blue';
+	export let title;
+	export let value;
+	export let change = null;
+	export let changeType = 'neutral';
+	export let icon = 'activity';
+	export let color = 'blue';
 	export let loading = false;
 
 	// Icon mapping
@@ -20,7 +20,7 @@
 		'users': Users
 	};
 
-	$: iconComponent = iconComponents[icon as keyof typeof iconComponents] || Activity;
+	$: iconComponent = iconComponents[icon] || Activity;
 
 	$: colorClasses = {
 		red: 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800',
@@ -44,7 +44,7 @@
 		: Minus;
 
 	// Format large numbers
-	function formatValue(val: string | number): string {
+	function formatValue(val) {
 		if (typeof val === 'string') return val;
 		
 		if (val >= 1000000) {

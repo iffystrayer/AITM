@@ -1,16 +1,15 @@
-<script lang="ts">
+<script>
 	import { onMount } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
-	import type { ChartConfiguration } from 'chart.js';
 
 	Chart.register(...registerables);
 
-	export let data: any[] = [];
+	export let data = [];
 	export let title = 'Threat Distribution';
 	export let height = '300px';
 
-	let canvas: HTMLCanvasElement;
-	let chart: Chart;
+	let canvas;
+	let chart;
 
 	// Sample data based on MITRE ATT&CK tactics
 	const sampleData = [
@@ -30,7 +29,7 @@
 	const totalThreats = chartData.reduce((sum, item) => sum + item.count, 0);
 
 	onMount(() => {
-		const config: ChartConfiguration = {
+		const config = {
 			type: 'doughnut',
 			data: {
 				labels: chartData.map(d => d.category),
@@ -64,25 +63,25 @@
 							font: {
 								size: 12
 							},
-							generateLabels: (chart) => {
-								const data = chart.data;
-								if (data.labels?.length && data.datasets.length) {
-									return data.labels.map((label, i) => {
-										const value = data.datasets[0].data[i] as number;
-										const percentage = ((value / totalThreats) * 100).toFixed(1);
-										return {
-											text: `${label} (${percentage}%)`,
-											fillStyle: data.datasets[0].backgroundColor![i] as string,
-											strokeStyle: data.datasets[0].backgroundColor![i] as string,
-											lineWidth: 0,
-											pointStyle: 'circle',
-											hidden: false,
-											index: i
-										};
-									});
-								}
-								return [];
+						generateLabels: (chart) => {
+							const data = chart.data;
+							if (data.labels && data.labels.length && data.datasets.length) {
+								return data.labels.map((label, i) => {
+									const value = data.datasets[0].data[i];
+									const percentage = ((value / totalThreats) * 100).toFixed(1);
+									return {
+										text: `${label} (${percentage}%)`,
+										fillStyle: data.datasets[0].backgroundColor[i],
+										strokeStyle: data.datasets[0].backgroundColor[i],
+										lineWidth: 0,
+										pointStyle: 'circle',
+										hidden: false,
+										index: i
+									};
+								});
 							}
+							return [];
+						}
 						}
 					},
 					tooltip: {

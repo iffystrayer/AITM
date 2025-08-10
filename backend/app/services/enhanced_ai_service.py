@@ -14,7 +14,8 @@ from enum import Enum
 
 from app.services.llm_service import llm_service
 from app.services.prediction_service import RiskPredictionService
-from app.models.schemas import LLMMessage, AgentTask
+from app.services.llm_providers.base import LLMMessage
+from app.models.schemas import AgentTask
 
 logger = logging.getLogger(__name__)
 

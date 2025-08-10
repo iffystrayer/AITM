@@ -3,16 +3,37 @@
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import NotificationToast from '$lib/components/NotificationToast.svelte';
-	import { sidebarOpen } from '$lib/stores';
-	import { onMount } from 'svelte';
+import { sidebarOpen, healthStatus } from '$lib/stores';
+import { onMount } from 'svelte';
+import { apiService } from '$lib/api';
 
-	// Initialize sidebar state
-	onMount(() => {
+	// Initialize sidebar state and backend health check
+	onMount(async () => {
 		// Set default sidebar state based on screen size
 		if (typeof window !== 'undefined') {
 			const isLargeScreen = window.innerWidth >= 1024;
 			sidebarOpen.set(isLargeScreen);
 		}
+
+		// Check backend health
+		const checkHealth = async () => {
+			try {
+			const response = await apiService.healthCheck();
+				healthStatus.set(response.data);
+			} catch (error) {
+				console.error('Health check failed:', error);
+				healthStatus.set({ status: 'unhealthy', environment: 'unknown', version: 'unknown' });
+			}
+		};
+
+		// Initial health check
+		await checkHealth();
+
+		// Set up periodic health check (every 30 seconds)
+		const interval = setInterval(checkHealth, 30000);
+
+		// Cleanup on unmount
+		return () => clearInterval(interval);
 	});
 </script>
 

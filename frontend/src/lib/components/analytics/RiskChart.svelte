@@ -1,16 +1,15 @@
-<script lang="ts">
+<script>
 	import { onMount } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
-	import type { ChartConfiguration } from 'chart.js';
 
 	Chart.register(...registerables);
 
-	export let data: any[] = [];
+	export let data = [];
 	export let title = 'Risk Score Trends';
 	export let height = '400px';
 
-	let canvas: HTMLCanvasElement;
-	let chart: Chart;
+	let canvas;
+	let chart;
 
 	// Sample data if none provided
 	const sampleData = [
@@ -26,7 +25,7 @@
 	const chartData = data.length > 0 ? data : sampleData;
 
 	onMount(() => {
-		const config: ChartConfiguration = {
+		const config = {
 			type: 'line',
 			data: {
 				labels: chartData.map(d => new Date(d.date).toLocaleDateString()),

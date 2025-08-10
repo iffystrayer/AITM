@@ -1,6 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
-	import LoadingSpinner from '../ui/LoadingSpinner.svelte';
+	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import { MessageCircleIcon, BrainIcon, SendIcon, LightbulbIcon } from 'lucide-svelte';
 	
 	const dispatch = createEventDispatcher();

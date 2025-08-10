@@ -1,8 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
-	import LoadingSpinner from '../ui/LoadingSpinner.svelte';
-	import { AIAnalysisIcon, BrainIcon, ShieldIcon, TrendingUpIcon, AlertTriangleIcon } from 'lucide-svelte';
+	import LoadingSpinner from '../LoadingSpinner.svelte';
+	import { Activity, BrainIcon, ShieldIcon, TrendingUpIcon, AlertTriangleIcon } from 'lucide-svelte';
 	
 	const dispatch = createEventDispatcher();
 	
@@ -187,7 +187,7 @@
 							<LoadingSpinner size={16} />
 							Analyzing...
 						{:else}
-							<AIAnalysisIcon size={16} />
+							<Activity size={16} />
 							Start Advanced Analysis
 						{/if}
 					</button>

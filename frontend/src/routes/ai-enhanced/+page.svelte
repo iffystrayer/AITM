@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import AdvancedAIAnalysis from '$lib/components/ai/AdvancedAIAnalysis.svelte';
 	import NaturalLanguageQuery from '$lib/components/ai/NaturalLanguageQuery.svelte';
-	import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import { BrainIcon, SparklesIcon, TrendingUpIcon, ShieldIcon, MessageCircleIcon, BarChart3Icon } from 'lucide-svelte';
 
 	let activeTab = 'analysis';

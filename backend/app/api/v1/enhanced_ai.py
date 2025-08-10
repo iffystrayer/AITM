@@ -9,8 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.services.enhanced_ai_service import enhanced_ai_service, AnalysisMode, ThreatSeverity
-from app.services.permissions import require_permission
-from app.core.cache_manager import cache_manager
+from app.core.permissions import require_permission
+from app.core.cache import CacheManager
+
+# Initialize cache manager
+cache_manager = CacheManager()
 
 router = APIRouter()
 
