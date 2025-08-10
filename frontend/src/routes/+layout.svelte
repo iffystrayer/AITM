@@ -18,8 +18,8 @@ import { apiService } from '$lib/api';
 		// Check backend health
 		const checkHealth = async () => {
 			try {
-			const response = await apiService.healthCheck();
-				healthStatus.set(response.data);
+				const response = await apiService.healthCheck();
+				healthStatus.set(response);
 			} catch (error) {
 				console.error('Health check failed:', error);
 				healthStatus.set({ status: 'unhealthy', environment: 'unknown', version: 'unknown' });
