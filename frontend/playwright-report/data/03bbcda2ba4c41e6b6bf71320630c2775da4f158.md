@@ -53,23 +53,19 @@
   - link:
     - /url: /projects
     - img
-  - heading "E2E Test Project 1754796426584" [level=1]
+  - heading "E2E Test Project 1754801679991" [level=1]
   - paragraph: Automated test project for end-to-end testing
-  - text: "created Created: Aug 10, 2025, 03:27 AM"
+  - text: "created Created: Aug 10, 2025, 04:54 AM"
   - navigation:
     - button "Overview"
-    - button "System Inputs (2)"
+    - button "System Inputs (1)"
     - button "Analysis"
     - button "Results"
   - heading "System Inputs" [level=3]
   - button "+ Add Input"
   - heading "undefined" [level=4]
   - paragraph: undefined
-  - text: Aug 10, 2025, 03:36 AM
-  - paragraph: Test system with web frontend and backend API
-  - heading "undefined" [level=4]
-  - paragraph: undefined
-  - text: Aug 10, 2025, 04:09 AM
+  - text: Aug 10, 2025, 04:54 AM
   - paragraph: Test system with web frontend and backend API
 - text: Project - AITM
 ```

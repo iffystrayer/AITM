@@ -28,10 +28,10 @@ test.describe('Threat Analysis Workflow', () => {
     await page.click('button:has-text("System Inputs")');
     await page.click('button:has-text("+ Add Input")');
     
-    await page.fill('input[placeholder*="title"]', TestData.systemInput.title);
-    await page.fill('textarea[placeholder*="description"]', TestData.systemInput.description);
-    await page.fill('textarea[placeholder*="system description"]', TestData.systemInput.content);
-    await page.click('button:has-text("Add System Input")');
+    await page.fill('input[placeholder*="Web Application Architecture"]', TestData.systemInput.title);
+    await page.fill('textarea[placeholder*="Optional description"]', TestData.systemInput.description);
+    await page.fill('textarea[placeholder*="Describe your system architecture"]', TestData.systemInput.content);
+    await page.click('button[type="submit"]:has-text("Add Input")');
     await page.waitForLoadState('networkidle');
     
     await context.close();

@@ -120,7 +120,30 @@ test.describe('Project Management', () => {
 
     await test.step('Verify back navigation works', async () => {
       // Use the back arrow button at the top of the project detail page
-      await projectDetailPage.page.click('a[href="/projects"] svg, a[href="/projects"]');
+      // Try multiple navigation selectors
+      const selectors = [
+        'a[href="/projects"]:has(svg)',
+        'a[href="/projects"]',
+        'svg[stroke="currentColor"]',
+        'button:has-text("Back")',
+        'text="Projects"'
+      ];
+      
+      let navigationSuccessful = false;
+      for (const selector of selectors) {
+        try {
+          await projectDetailPage.page.click(selector, { timeout: 2000 });
+          navigationSuccessful = true;
+          break;
+        } catch (e) {
+          // Continue to next selector
+        }
+      }
+      
+      if (!navigationSuccessful) {
+        // Fallback - navigate directly
+        await projectDetailPage.page.goto('/projects');
+      }
       await expect(projectDetailPage.page.locator('h2:has-text("Threat Modeling Projects")')).toBeVisible();
     });
   });

@@ -128,7 +128,7 @@ test.describe('API Integration Tests', () => {
       expect(input).toHaveProperty('input_id');
       expect(input).toHaveProperty('message');
       
-      inputId = input.id;
+      inputId = input.input_id;
     });
 
     await test.step('List system inputs via API', async () => {
@@ -188,14 +188,23 @@ test.describe('API Integration Tests', () => {
     });
 
     await test.step('Test analysis initiation endpoint', async () => {
-      const analysisConfig = {
-        llm_provider: 'gemini',
-        analysis_depth: 'standard',
-        include_mitre_mapping: true
+      // First, get the input IDs from the project
+      const inputsResponse = await page.request.get(`${API_BASE}/api/v1/projects/${projectId}/inputs`);
+      const inputsData = await inputsResponse.json();
+      const inputIds = inputsData.data?.map((input: any) => input.id) || [];
+      
+      const analysisRequest = {
+        project_id: parseInt(projectId),
+        input_ids: inputIds,
+        config: {
+          llm_provider: 'gemini',
+          analysis_depth: 'standard',
+          include_mitre_mapping: true
+        }
       };
 
       const response = await page.request.post(`${API_BASE}/api/v1/projects/${projectId}/analysis/start`, {
-        data: analysisConfig
+        data: analysisRequest
       });
 
       if (response.ok()) {
