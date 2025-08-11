@@ -52,7 +52,8 @@ class UserService:
                 hashed_password=hashed_password,
                 full_name=user_create.full_name,
                 is_active=user_create.is_active,
-                is_superuser=user_create.is_superuser
+                is_superuser=user_create.is_superuser,
+                role=user_create.role
             )
             
             db.add(db_user)
@@ -94,6 +95,7 @@ class UserService:
                     full_name=user.full_name,
                     is_active=user.is_active,
                     is_superuser=user.is_superuser,
+                    role=user.role,
                     created_at=user.created_at,
                     updated_at=user.updated_at
                 )

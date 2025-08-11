@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from app.core.config import get_settings
 from app.core.database import init_db
 from app.core.logging import setup_logging
+from app.core.auth import validate_production_config
 from app.api.v1.router import api_router
 from app.services.mitre_service import MitreAttackService
 
@@ -33,6 +34,13 @@ async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
     logger.info("Starting AITM application...")
+    
+    # Validate production configuration
+    try:
+        validate_production_config()
+    except RuntimeError as e:
+        logger.critical(f"Configuration validation failed: {e}")
+        raise
     
     # Initialize database
     await init_db()

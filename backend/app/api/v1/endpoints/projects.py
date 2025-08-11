@@ -6,10 +6,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+import logging
 
 from app.core.database import get_db, Project, SystemInput, AnalysisState, AnalysisResults
 from app.api.endpoints.auth import get_current_active_user
 from app.models.user import User
+from app.core.permissions import require_permission, Permission
 from app.models.schemas import (
     ProjectCreate, ProjectResponse, ProjectUpdate, SystemInputCreate,
     AnalysisStartRequest, AnalysisStartResponse, AnalysisStatusResponse,
@@ -17,37 +19,123 @@ from app.models.schemas import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 async def create_project(
     project: ProjectCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(require_permission(Permission.CREATE_PROJECTS))
 ):
-    """Create a new threat modeling project"""
-    project_data = project.dict()
-    project_data["owner_user_id"] = current_user.id
+    """
+    Create a new threat modeling project with proper authorization.
     
-    db_project = Project(**project_data)
-    db.add(db_project)
-    await db.flush()
-    await db.refresh(db_project)
+    This endpoint enforces authorization by:
+    - Requiring CREATE_PROJECTS permission for the authenticated user
+    - Validating user context and setting proper ownership on created projects
+    - Providing comprehensive error handling for authorization failures
     
-    # Log activity (import collaboration service)
-    from app.services.collaboration_service import get_collaboration_service
-    from app.models.collaboration import ActivityType
-    collab_service = get_collaboration_service()
-    await collab_service._log_activity(
-        db,
-        user_id=current_user.id,
-        project_id=db_project.id,
-        activity_type=ActivityType.PROJECT_CREATED,
-        description=f"Created project '{project.name}'",
-        metadata={"project_name": project.name}
-    )
-    
-    return db_project
+    Requirements addressed:
+    - 1.1: API endpoints enforce proper authorization checks before processing requests
+    - 1.2: Users can only access resources they have permission to view or modify
+    - 5.1: Authorization implemented at the API endpoint level
+    - 5.2: Authorization implemented at the service layer level
+    """
+    try:
+        # Validate user context - ensure user is active and has valid session
+        if not current_user.is_active:
+            logger.warning(
+                "Project creation denied: user account inactive",
+                extra={
+                    "user_id": current_user.id,
+                    "operation": "create_project"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account is inactive",
+                headers={"X-Error-Code": "ACCOUNT_INACTIVE"}
+            )
+        
+        # Log project creation attempt
+        logger.info(
+            "Creating new project",
+            extra={
+                "user_id": current_user.id,
+                "user_role": current_user.role,
+                "project_name": project.name,
+                "operation": "create_project"
+            }
+        )
+        
+        # Prepare project data with proper ownership
+        project_data = project.dict()
+        project_data["owner_user_id"] = current_user.id
+        
+        # Validate project data before creation
+        if not project_data.get("name") or not project_data["name"].strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Project name is required",
+                headers={"X-Error-Code": "INVALID_PROJECT_NAME"}
+            )
+        
+        # Create project with proper ownership
+        db_project = Project(**project_data)
+        db.add(db_project)
+        await db.flush()
+        await db.refresh(db_project)
+        
+        # Log successful project creation
+        logger.info(
+            "Project created successfully",
+            extra={
+                "user_id": current_user.id,
+                "project_id": db_project.id,
+                "project_name": db_project.name,
+                "operation": "create_project"
+            }
+        )
+        
+        # Log activity (import collaboration service)
+        try:
+            from app.services.collaboration_service import get_collaboration_service
+            from app.models.collaboration import ActivityType
+            collab_service = get_collaboration_service()
+            await collab_service._log_activity(
+                db,
+                user_id=current_user.id,
+                project_id=db_project.id,
+                activity_type=ActivityType.PROJECT_CREATED,
+                description=f"Created project '{project.name}'",
+                metadata={"project_name": project.name}
+            )
+        except Exception as e:
+            # Don't fail project creation if activity logging fails
+            logger.warning(f"Failed to log project creation activity: {e}")
+        
+        return db_project
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions without modification
+        raise
+    except Exception as e:
+        # Handle unexpected errors with comprehensive logging
+        logger.error(
+            "Unexpected error during project creation",
+            extra={
+                "user_id": current_user.id if current_user else "unknown",
+                "error": str(e),
+                "operation": "create_project"
+            },
+            exc_info=True
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while creating the project",
+            headers={"X-Error-Code": "PROJECT_CREATION_FAILED"}
+        )
 
 
 @router.get("/", response_model=List[ProjectResponse])

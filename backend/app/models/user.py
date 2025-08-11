@@ -19,6 +19,7 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     is_active: bool = True
     is_superuser: bool = False
+    role: str = "viewer"
 
 
 class UserCreate(UserBase):
@@ -57,6 +58,7 @@ class UserTable(Base):
     full_name = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
+    role = Column(String(20), nullable=False, default="viewer")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -68,6 +70,7 @@ class UserTable(Base):
             full_name=self.full_name,
             is_active=self.is_active,
             is_superuser=self.is_superuser,
+            role=self.role,
             created_at=self.created_at,
             updated_at=self.updated_at
         )
