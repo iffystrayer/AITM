@@ -46,19 +46,30 @@ if [ ! -f "backend/app/main.py" ]; then
     exit 1
 fi
 
+# Create and activate virtual environment
+print_status "Setting up virtual environment for E2E tests..."
+if [ ! -d "venv_e2e" ]; then
+    python3 -m venv venv_e2e
+    print_success "Virtual environment created"
+fi
+
+# Activate virtual environment
+source venv_e2e/bin/activate
+print_success "Virtual environment activated"
+
 # Install E2E test requirements
 print_status "Installing E2E test requirements..."
 if [ -f "tests/e2e/requirements.txt" ]; then
-    python3 -m pip install -r tests/e2e/requirements.txt
+    pip install -r tests/e2e/requirements.txt
     print_success "E2E test requirements installed"
 else
     print_warning "E2E requirements file not found, installing basic requirements..."
-    python3 -m pip install playwright requests
+    pip install playwright requests
 fi
 
 # Install Playwright browsers
 print_status "Installing Playwright browsers..."
-python3 -m playwright install chromium
+python -m playwright install chromium
 print_success "Playwright browsers installed"
 
 # Set environment variables for testing
@@ -75,7 +86,7 @@ print_status "Starting End-to-End Authorization Tests..."
 echo ""
 
 cd tests/e2e
-python3 run_e2e_tests.py
+python run_e2e_tests.py
 
 # Capture exit code
 EXIT_CODE=$?
@@ -86,6 +97,9 @@ if [ -f "../../backend/test_e2e.db" ]; then
     rm -f "../../backend/test_e2e.db"
     print_status "Test database cleaned up"
 fi
+
+# Deactivate virtual environment
+deactivate 2>/dev/null || true
 
 # Print final results
 echo ""
