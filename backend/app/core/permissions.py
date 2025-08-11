@@ -529,6 +529,17 @@ def require_project_access(project_id: int):
         
         # Check if user can access this project using explicit user object passing
         if not can_access_project(current_user, project):
+            # Log security event for denied access
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_access_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
             logger.warning(
                 "Permission denied for project access",
                 extra={
@@ -545,6 +556,16 @@ def require_project_access(project_id: int):
                 detail="Project not found",
                 headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
             )
+        
+        # Log successful access
+        from app.core.security_audit import get_security_audit_logger
+        audit_logger = get_security_audit_logger()
+        audit_logger.log_project_access_granted(
+            user_id=current_user.id,
+            user_role=current_user.role,
+            project_id=str(project_id),
+            project_owner=project.owner_user_id
+        )
         
         logger.info(
             "Project access granted",
@@ -627,6 +648,18 @@ def require_project_modification(project_id: int):
         
         # Check if user can modify this project using explicit user object passing
         if not can_modify_project(current_user, project):
+            # Log security event for denied modification
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_modification_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                modification_type="general",
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
             logger.warning(
                 "Permission denied for project modification",
                 extra={
@@ -642,6 +675,17 @@ def require_project_modification(project_id: int):
                 detail="Permission denied: insufficient privileges to modify this project",
                 headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
             )
+        
+        # Log successful modification access
+        from app.core.security_audit import get_security_audit_logger
+        audit_logger = get_security_audit_logger()
+        audit_logger.log_project_modification_granted(
+            user_id=current_user.id,
+            user_role=current_user.role,
+            project_id=str(project_id),
+            modification_type="general",
+            project_owner=project.owner_user_id
+        )
         
         logger.info(
             "Project modification access granted",
@@ -724,6 +768,18 @@ def require_project_deletion(project_id: int):
         
         # Check if user can delete this project using explicit user object passing
         if not can_delete_project(current_user, project):
+            # Log security event for denied deletion
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_modification_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                modification_type="deletion",
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
             logger.warning(
                 "Permission denied for project deletion",
                 extra={
@@ -739,6 +795,17 @@ def require_project_deletion(project_id: int):
                 detail="Permission denied: insufficient privileges to delete this project",
                 headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
             )
+        
+        # Log successful deletion access
+        from app.core.security_audit import get_security_audit_logger
+        audit_logger = get_security_audit_logger()
+        audit_logger.log_project_modification_granted(
+            user_id=current_user.id,
+            user_role=current_user.role,
+            project_id=str(project_id),
+            modification_type="deletion",
+            project_owner=project.owner_user_id
+        )
         
         logger.info(
             "Project deletion access granted",

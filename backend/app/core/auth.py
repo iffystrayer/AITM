@@ -55,6 +55,19 @@ def validate_production_config():
                 "Then set it as an environment variable: export SECRET_KEY='your-generated-key'"
             )
             logger.critical(error_msg)
+            
+            # Log security audit event
+            try:
+                from app.core.security_audit import get_security_audit_logger
+                audit_logger = get_security_audit_logger()
+                audit_logger.log_production_config_error(
+                    error_type="MISSING_SECRET_KEY",
+                    error_message="SECRET_KEY environment variable is required in production"
+                )
+            except ImportError:
+                # Security audit logging not available during early initialization
+                pass
+            
             raise RuntimeError(error_msg)
         
         # Validate secret key strength in production
@@ -87,6 +100,19 @@ def validate_production_config():
         
         logger.info("Production JWT configuration validated successfully")
         logger.info(f"SECRET_KEY length: {len(secret_key)} characters (meets security requirements)")
+        
+        # Log successful validation
+        try:
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_secret_key_validation(
+                environment=environment,
+                validation_result="success",
+                key_length=len(secret_key)
+            )
+        except ImportError:
+            # Security audit logging not available during early initialization
+            pass
         
     else:
         # Development environment warnings
