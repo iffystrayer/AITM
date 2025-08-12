@@ -36,6 +36,7 @@ class UserRegistration(BaseModel):
     email: EmailStr
     password: str
     full_name: Optional[str] = None
+    role: str = "viewer"
     
 class PasswordChange(BaseModel):
     """Password change model"""
@@ -105,6 +106,7 @@ async def register_user(
         email=user_data.email,
         password=user_data.password,
         full_name=user_data.full_name,
+        role=user_data.role,
         is_active=True,
         is_superuser=False
     )

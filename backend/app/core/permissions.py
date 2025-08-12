@@ -241,7 +241,7 @@ def get_permission_service() -> PermissionService:
 # FastAPI dependencies
 def require_permission(permission: Permission):
     """Dependency factory to require a specific permission"""
-    def dependency(current_user: User = Depends(get_current_user_dependency)):
+    def dependency(current_user: User = Depends(get_current_user_dependency())):
         if not permission_service.user_has_permission(current_user, permission):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -252,7 +252,7 @@ def require_permission(permission: Permission):
 
 def require_any_permission(*permissions: Permission):
     """Dependency factory to require any of the specified permissions"""
-    def dependency(current_user: User = Depends(get_current_user_dependency)):
+    def dependency(current_user: User = Depends(get_current_user_dependency())):
         if not permission_service.user_has_any_permission(current_user, list(permissions)):
             perm_names = [p.value for p in permissions]
             raise HTTPException(
@@ -264,7 +264,7 @@ def require_any_permission(*permissions: Permission):
 
 def require_all_permissions(*permissions: Permission):
     """Dependency factory to require all of the specified permissions"""
-    def dependency(current_user: User = Depends(get_current_user_dependency)):
+    def dependency(current_user: User = Depends(get_current_user_dependency())):
         if not permission_service.user_has_all_permissions(current_user, list(permissions)):
             perm_names = [p.value for p in permissions]
             raise HTTPException(
@@ -276,7 +276,7 @@ def require_all_permissions(*permissions: Permission):
 
 def require_role(role: Role):
     """Dependency factory to require a specific role"""
-    def dependency(current_user: User = Depends(get_current_user_dependency)):
+    def dependency(current_user: User = Depends(get_current_user_dependency())):
         if current_user.role != role.value:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -287,7 +287,7 @@ def require_role(role: Role):
 
 def require_active_user():
     """Dependency to ensure user is active"""
-    def dependency(current_user: User = Depends(get_current_user_dependency)):
+    def dependency(current_user: User = Depends(get_current_user_dependency())):
         if not current_user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -484,7 +484,7 @@ def require_project_access(project_id: int):
         - 3.4: Implements authorization checks by default for new API endpoints
     """
     async def dependency(
-        current_user: User = Depends(get_current_user_dependency),
+        current_user: User = Depends(get_current_user_dependency()),
         db: AsyncSession = Depends(get_db)
     ) -> User:
         from sqlalchemy import select
@@ -604,7 +604,7 @@ def require_project_modification(project_id: int):
         - 3.4: Implements authorization checks by default for new API endpoints
     """
     async def dependency(
-        current_user: User = Depends(get_current_user_dependency),
+        current_user: User = Depends(get_current_user_dependency()),
         db: AsyncSession = Depends(get_db)
     ) -> User:
         from sqlalchemy import select
@@ -724,7 +724,7 @@ def require_project_deletion(project_id: int):
         - 3.4: Implements authorization checks by default for new API endpoints
     """
     async def dependency(
-        current_user: User = Depends(get_current_user_dependency),
+        current_user: User = Depends(get_current_user_dependency()),
         db: AsyncSession = Depends(get_db)
     ) -> User:
         from sqlalchemy import select

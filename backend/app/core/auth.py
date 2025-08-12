@@ -421,7 +421,7 @@ def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(secu
 
 async def get_current_user(
     user_id: str = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db_dependency)
+    db: AsyncSession = Depends(get_db_dependency())
 ):
     """FastAPI dependency to get current user object from token."""
     from app.services.user_service import UserService

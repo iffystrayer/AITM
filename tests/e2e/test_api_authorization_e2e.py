@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'backend'
 class APIAuthorizationE2ETests:
     """End-to-end API authorization tests using direct HTTP requests"""
     
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = "http://localhost:38527"):
         self.base_url = base_url
         self.test_users = {
             "owner": {

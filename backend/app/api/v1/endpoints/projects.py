@@ -3,6 +3,7 @@ Projects API endpoints with authentication
 """
 
 from typing import List, Optional
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -14,7 +15,7 @@ from app.models.user import User
 from app.core.permissions import (
     require_permission, Permission, require_project_access, 
     require_project_modification, require_project_deletion,
-    can_access_project, Role
+    can_access_project, can_modify_project, can_delete_project, Role
 )
 from app.models.schemas import (
     ProjectCreate, ProjectResponse, ProjectUpdate, SystemInputCreate,
@@ -368,7 +369,7 @@ async def update_project(
     project_id: int,
     project_update: ProjectUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_project_modification(project_id))
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Update a project with proper authorization.
@@ -413,6 +414,36 @@ async def update_project(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Project not found",
                 headers={"X-Error-Code": "PROJECT_NOT_FOUND"}
+            )
+        
+        # Check if user can modify this project
+        if not can_modify_project(current_user, project):
+            # Log security event for denied modification
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_modification_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                modification_type="update",
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
+            logger.warning(
+                "Permission denied for project modification",
+                extra={
+                    "user_id": current_user.id,
+                    "project_id": project_id,
+                    "project_owner": project.owner_user_id,
+                    "user_role": current_user.role,
+                    "operation": "update_project"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permission denied: insufficient privileges to modify this project",
+                headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
             )
         
         # Validate update data
@@ -492,7 +523,7 @@ async def update_project(
 async def delete_project(
     project_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_project_deletion(project_id))
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Delete a project with proper authorization.
@@ -537,6 +568,36 @@ async def delete_project(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Project not found",
                 headers={"X-Error-Code": "PROJECT_NOT_FOUND"}
+            )
+        
+        # Check if user can delete this project
+        if not can_delete_project(current_user, project):
+            # Log security event for denied deletion
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_modification_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                modification_type="deletion",
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
+            logger.warning(
+                "Permission denied for project deletion",
+                extra={
+                    "user_id": current_user.id,
+                    "project_id": project_id,
+                    "project_owner": project.owner_user_id,
+                    "user_role": current_user.role,
+                    "operation": "delete_project"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permission denied: insufficient privileges to delete this project",
+                headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
             )
         
         # Store project info for logging before deletion
@@ -608,7 +669,7 @@ async def add_system_input(
     project_id: int,
     system_input: SystemInputCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_project_modification(project_id))
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Add system input data to a project with proper authorization.
@@ -653,6 +714,36 @@ async def add_system_input(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Project not found",
                 headers={"X-Error-Code": "PROJECT_NOT_FOUND"}
+            )
+        
+        # Check if user can modify this project
+        if not can_modify_project(current_user, project):
+            # Log security event for denied modification
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_modification_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                modification_type="add_input",
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
+            logger.warning(
+                "Permission denied for adding system input",
+                extra={
+                    "user_id": current_user.id,
+                    "project_id": project_id,
+                    "project_owner": project.owner_user_id,
+                    "user_role": current_user.role,
+                    "operation": "add_system_input"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permission denied: insufficient privileges to modify this project",
+                headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
             )
         
         # Validate input data
@@ -729,7 +820,7 @@ async def add_system_input(
 async def get_project_inputs(
     project_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_project_access(project_id))
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Get all system inputs for a project with proper authorization.
@@ -756,6 +847,54 @@ async def get_project_inputs(
                 "operation": "get_project_inputs"
             }
         )
+        
+        # First, verify the project exists and user can access it
+        project_result = await db.execute(select(Project).where(Project.id == project_id))
+        project = project_result.scalar_one_or_none()
+        
+        if not project:
+            logger.warning(
+                "Project not found during input retrieval",
+                extra={
+                    "user_id": current_user.id,
+                    "project_id": project_id,
+                    "operation": "get_project_inputs"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found",
+                headers={"X-Error-Code": "PROJECT_NOT_FOUND"}
+            )
+        
+        # Check if user can access this project
+        if not can_access_project(current_user, project):
+            # Log security event for denied access
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_access_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
+            logger.warning(
+                "Permission denied for project input access",
+                extra={
+                    "user_id": current_user.id,
+                    "project_id": project_id,
+                    "project_owner": project.owner_user_id,
+                    "user_role": current_user.role,
+                    "operation": "get_project_inputs"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found",
+                headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
+            )
         
         # Get system inputs for the project
         result = await db.execute(
@@ -802,7 +941,6 @@ async def get_project_inputs(
 
 
 # Analysis endpoints
-from datetime import datetime
 import json
 import asyncio
 
@@ -812,7 +950,7 @@ async def start_analysis(
     project_id: int,
     request: AnalysisStartRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_project_modification(project_id))
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Start threat analysis for a project with proper authorization.
@@ -858,63 +996,94 @@ async def start_analysis(
                 detail="Project not found",
                 headers={"X-Error-Code": "PROJECT_NOT_FOUND"}
             )
-    
-    # Verify system inputs exist
-    if request.input_ids:
-        input_result = await db.execute(
-            select(SystemInput).where(
-                SystemInput.project_id == project_id,
-                SystemInput.id.in_(request.input_ids)
+        
+        # Check if user can modify this project
+        if not can_modify_project(current_user, project):
+            # Log security event for denied modification
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_modification_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                modification_type="start_analysis",
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
             )
+            
+            logger.warning(
+                "Permission denied for starting analysis",
+                extra={
+                    "user_id": current_user.id,
+                    "project_id": project_id,
+                    "project_owner": project.owner_user_id,
+                    "user_role": current_user.role,
+                    "operation": "start_analysis"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permission denied: insufficient privileges to modify this project",
+                headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
+            )
+        
+        # Verify system inputs exist
+        if request.input_ids:
+            input_result = await db.execute(
+                select(SystemInput).where(
+                    SystemInput.project_id == project_id,
+                    SystemInput.id.in_(request.input_ids)
+                )
+            )
+            inputs = input_result.scalars().all()
+            if len(inputs) != len(request.input_ids):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Some input IDs not found"
+                )
+        
+        # Check if analysis is already running
+        state_result = await db.execute(
+            select(AnalysisState).where(AnalysisState.project_id == project_id)
         )
-        inputs = input_result.scalars().all()
-        if len(inputs) != len(request.input_ids):
+        existing_state = state_result.scalar_one_or_none()
+        
+        if existing_state and existing_state.status == "running":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Some input IDs not found"
+                detail="Analysis is already running for this project"
             )
-    
-    # Check if analysis is already running
-    state_result = await db.execute(
-        select(AnalysisState).where(AnalysisState.project_id == project_id)
-    )
-    existing_state = state_result.scalar_one_or_none()
-    
-    if existing_state and existing_state.status == "running":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Analysis is already running for this project"
-        )
-    
-    # Create or update analysis state
-    now = datetime.utcnow()
-    if existing_state:
-        existing_state.status = "running"
-        existing_state.current_phase = "system_analysis"
-        existing_state.progress_percentage = 0.0
-        existing_state.progress_message = "Initializing threat analysis..."
-        existing_state.started_at = now
-        existing_state.completed_at = None
-        existing_state.error_message = None
-        existing_state.configuration = json.dumps(request.config)
-        existing_state.updated_at = now
-    else:
-        existing_state = AnalysisState(
-            project_id=project_id,
-            status="running",
-            current_phase="system_analysis",
-            progress_percentage=0.0,
-            progress_message="Initializing threat analysis...",
-            started_at=now,
-            configuration=json.dumps(request.config)
-        )
-        db.add(existing_state)
-    
-    # Update project status
-    project.status = "analyzing"
-    project.updated_at = now
-    
-    await db.flush()
+        
+        # Create or update analysis state
+        now = datetime.utcnow()
+        
+        if existing_state:
+            existing_state.status = "running"
+            existing_state.current_phase = "system_analysis"
+            existing_state.progress_percentage = 0.0
+            existing_state.progress_message = "Initializing threat analysis..."
+            existing_state.started_at = now
+            existing_state.completed_at = None
+            existing_state.error_message = None
+            existing_state.configuration = json.dumps(request.config)
+            existing_state.updated_at = now
+        else:
+            existing_state = AnalysisState(
+                project_id=project_id,
+                status="running",
+                current_phase="system_analysis",
+                progress_percentage=0.0,
+                progress_message="Initializing threat analysis...",
+                started_at=now,
+                configuration=json.dumps(request.config)
+            )
+            db.add(existing_state)
+        
+        # Update project status
+        project.status = "analyzing"
+        project.updated_at = now
+        
+        await db.flush()
     
         # Start the analysis in the background
         asyncio.create_task(run_analysis_workflow(project_id, request.input_ids, request.config))
@@ -961,7 +1130,7 @@ async def start_analysis(
 async def get_analysis_status(
     project_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_project_access(project_id))
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Get current analysis status for a project with proper authorization.
@@ -1006,6 +1175,35 @@ async def get_analysis_status(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Project not found",
                 headers={"X-Error-Code": "PROJECT_NOT_FOUND"}
+            )
+        
+        # Check if user can access this project
+        if not can_access_project(current_user, project):
+            # Log security event for denied access
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_access_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
+            logger.warning(
+                "Permission denied for analysis status access",
+                extra={
+                    "user_id": current_user.id,
+                    "project_id": project_id,
+                    "project_owner": project.owner_user_id,
+                    "user_role": current_user.role,
+                    "operation": "get_analysis_status"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found",
+                headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
             )
     
         # Get analysis state
@@ -1081,7 +1279,7 @@ async def get_analysis_status(
 async def get_analysis_results(
     project_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_project_access(project_id))
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Get analysis results for a project with proper authorization.
@@ -1126,6 +1324,35 @@ async def get_analysis_results(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Project not found",
                 headers={"X-Error-Code": "PROJECT_NOT_FOUND"}
+            )
+        
+        # Check if user can access this project
+        if not can_access_project(current_user, project):
+            # Log security event for denied access
+            from app.core.security_audit import get_security_audit_logger
+            audit_logger = get_security_audit_logger()
+            audit_logger.log_project_access_denied(
+                user_id=current_user.id,
+                user_role=current_user.role,
+                project_id=str(project_id),
+                project_owner=project.owner_user_id,
+                error_code="INSUFFICIENT_PERMISSIONS"
+            )
+            
+            logger.warning(
+                "Permission denied for analysis results access",
+                extra={
+                    "user_id": current_user.id,
+                    "project_id": project_id,
+                    "project_owner": project.owner_user_id,
+                    "user_role": current_user.role,
+                    "operation": "get_analysis_results"
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found",
+                headers={"X-Error-Code": "INSUFFICIENT_PERMISSIONS"}
             )
     
         # Get analysis results
