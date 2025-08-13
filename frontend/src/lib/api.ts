@@ -22,7 +22,13 @@ class ApiService {
 		// Request interceptor
 		this.client.interceptors.request.use(
 			(config) => {
-				// Add any auth headers here if needed
+				// Add auth headers if token exists
+				if (typeof window !== 'undefined') {
+					const token = localStorage.getItem('access_token');
+					if (token) {
+						config.headers.Authorization = `Bearer ${token}`;
+					}
+				}
 				return config;
 			},
 			(error) => Promise.reject(error)
@@ -33,6 +39,16 @@ class ApiService {
 			(response) => response,
 			(error) => {
 				console.error('API Error:', error.response?.data || error.message);
+				
+				// Handle 401 Unauthorized - redirect to login
+				if (error.response?.status === 401) {
+					if (typeof window !== 'undefined') {
+						localStorage.removeItem('access_token');
+						localStorage.removeItem('refresh_token');
+						window.location.href = '/auth/login';
+					}
+				}
+				
 				return Promise.reject(error);
 			}
 		);

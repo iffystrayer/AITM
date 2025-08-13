@@ -2,8 +2,10 @@
 	import { onMount } from 'svelte';
 	import { sidebarOpen, currentProject, isAnalyzing, analysisProgress, currentPage } from '$lib/stores';
 	import { applyTheme, getThemePreference, setThemePreference } from '$lib/utils';
+	import { goto } from '$app/navigation';
 	
 	let theme = 'system';
+	let showUserMenu = false;
 
 	onMount(() => {
 		if (typeof window !== 'undefined') {
@@ -37,7 +39,26 @@
 			default: return 'AITM';
 		}
 	}
+
+	function toggleUserMenu() {
+		showUserMenu = !showUserMenu;
+	}
+
+	function handleLogout() {
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('refresh_token');
+		goto('/auth/login');
+	}
+
+	// Close user menu when clicking outside
+	function handleClickOutside(event) {
+		if (showUserMenu && !event.target.closest('.user-menu')) {
+			showUserMenu = false;
+		}
+	}
 </script>
+
+<svelte:window on:click={handleClickOutside} />
 
 <header class="header">
 	<div class="header-left">
@@ -102,9 +123,9 @@
 			{/if}
 		</button>
 
-		<!-- User Menu (placeholder for future auth) -->
+		<!-- User Menu -->
 		<div class="user-menu">
-			<button class="user-button">
+			<button class="user-button" on:click={toggleUserMenu}>
 				<div class="user-avatar">
 					<svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
 						<path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
@@ -115,6 +136,19 @@
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
 				</svg>
 			</button>
+			
+			{#if showUserMenu}
+				<div class="user-dropdown">
+					<div class="dropdown-content">
+						<button class="dropdown-item" on:click={handleLogout}>
+							<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+							</svg>
+							Sign out
+						</button>
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Quick Actions (future) -->
@@ -209,6 +243,41 @@
 		position: relative;
 	}
 
+	.user-dropdown {
+		position: absolute;
+		top: 100%;
+		right: 0;
+		margin-top: 0.5rem;
+		z-index: 50;
+	}
+
+	.dropdown-content {
+		background-color: white;
+		border: 1px solid #e5e7eb;
+		border-radius: 0.5rem;
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+		min-width: 12rem;
+		padding: 0.5rem 0;
+	}
+
+	.dropdown-item {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		padding: 0.5rem 1rem;
+		text-align: left;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		color: #374151;
+		font-size: 0.875rem;
+		transition: background-color 0.2s ease-in-out;
+	}
+
+	.dropdown-item:hover {
+		background-color: #f3f4f6;
+	}
+
 	.user-button {
 		display: flex;
 		align-items: center;
@@ -286,6 +355,19 @@
 	}
 
 	:global(.dark) .progress-bar {
+		background-color: #374151;
+	}
+
+	:global(.dark) .dropdown-content {
+		background-color: #1f2937;
+		border-color: #374151;
+	}
+
+	:global(.dark) .dropdown-item {
+		color: #d1d5db;
+	}
+
+	:global(.dark) .dropdown-item:hover {
 		background-color: #374151;
 	}
 

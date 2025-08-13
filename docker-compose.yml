@@ -3,6 +3,7 @@ services:
     build:
       context: ./frontend
       dockerfile: ./tests/Dockerfile
+    container_name: AITM-tests
     depends_on:
       - backend
       - frontend
@@ -12,11 +13,12 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: AITM-backend
     ports:
       - "38527:38527"
     volumes:
       - ./backend:/app
-      - backend-data:/app/data
+      - ~/AITM/backend-data:/app/data
       # Mount .env file
       - ./.env:/app/.env:ro
     environment:
@@ -37,20 +39,22 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: AITM-frontend
     ports:
-      - "59000:59000"
+      - "41241:41241"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
       - VITE_API_BASE_URL=http://localhost:38527/api/v1
+      - PORT=41241
     networks:
       - aitm-network
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:59000/"]
+      test: ["CMD", "curl", "-f", "http://localhost:41241/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -60,6 +64,10 @@ services:
 volumes:
   backend-data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/AITM/backend-data
 
 networks:
   aitm-network:
