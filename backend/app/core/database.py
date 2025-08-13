@@ -190,6 +190,10 @@ async def init_db():
     from app.models.collaboration import (
         Team, TeamMembership, ProjectShare, ProjectComment, ActivityLog
     )
+    from app.models.threat_intelligence import (
+        ThreatFeed, ThreatIndicator, ThreatRelationship, ThreatCorrelation,
+        ThreatAlert, ThreatIntelligenceCache, ThreatIntelligenceMetrics
+    )
     
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

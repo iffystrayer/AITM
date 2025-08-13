@@ -55,6 +55,24 @@ class Settings(BaseSettings):
     mitre_attack_version: str = "14.1"
     mitre_attack_data_url: str = "https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json"
     
+    # Redis Configuration
+    redis_url: str = "redis://localhost:6379/0"
+    redis_max_connections: int = 20
+    
+    # Threat Intelligence
+    threat_intelligence_enabled: bool = True
+    threat_feed_polling_interval: int = 300  # 5 minutes
+    threat_correlation_threshold: float = 0.7
+    threat_alert_threshold: float = 0.8
+    threat_data_retention_days: int = 90
+    max_indicators_per_feed: int = 100000
+    
+    # Threat Feed API Keys (optional)
+    misp_url: Optional[str] = None
+    misp_api_key: Optional[str] = None
+    otx_api_key: Optional[str] = None
+    virustotal_api_key: Optional[str] = None
+    
     @field_validator("cors_origins")
     @classmethod
     def parse_cors_origins(cls, v) -> List[str]:
