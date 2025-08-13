@@ -34,7 +34,7 @@ This implementation plan breaks down the development of threat intelligence inte
   - Write integration tests for OTX feed processing
   - _Requirements: 1.1, 1.2, 8.1, 8.2_
 
-- [-] 5. Integrate VirusTotal threat intelligence
+- [ ] 5. Integrate VirusTotal threat intelligence
   - Implement VirusTotalHandler with VirusTotal API v3 integration
   - Create VirusTotal-specific data processing and enrichment
   - Implement intelligent querying to respect API quotas
