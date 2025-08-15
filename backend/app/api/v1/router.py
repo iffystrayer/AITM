@@ -4,7 +4,7 @@ API v1 router
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import projects, threat_modeling
+from app.api.v1.endpoints import projects, threat_modeling, quality_issues
 from app.api.v1 import analytics, enhanced_ai
 from app.api.endpoints import reports, predictions, auth, collaboration
 from app.core.config import get_settings
@@ -30,4 +30,5 @@ api_router.include_router(collaboration.router, prefix="/collaboration", tags=["
 api_router.include_router(predictions.router, prefix="/predictions", tags=["predictions"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 api_router.include_router(enhanced_ai.router, prefix="/enhanced-ai", tags=["enhanced-ai"])
+api_router.include_router(quality_issues.router, prefix="/quality", tags=["quality-issues"])
 api_router.include_router(reports.router)
