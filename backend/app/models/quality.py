@@ -319,3 +319,310 @@ class QualityTrend:
             'trend_direction': self.trend_direction,
             'change_percentage': self.change_percentage
         }
+
+
+class TestType(str, Enum):
+    """Types of tests."""
+    UNIT = "unit"
+    INTEGRATION = "integration"
+    FUNCTIONAL = "functional"
+    PERFORMANCE = "performance"
+    SECURITY = "security"
+    E2E = "e2e"
+    SMOKE = "smoke"
+    REGRESSION = "regression"
+
+
+class TestStatus(str, Enum):
+    """Test execution status."""
+    PASSED = "passed"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+    ERROR = "error"
+    FLAKY = "flaky"
+
+
+@dataclass
+class TestResult:
+    """Represents a test execution result."""
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    project_id: str = ""
+    test_file: str = ""
+    test_name: str = ""
+    test_type: TestType = TestType.UNIT
+    status: TestStatus = TestStatus.PASSED
+    execution_time: float = 0.0
+    error_message: Optional[str] = None
+    stack_trace: Optional[str] = None
+    coverage_percentage: Optional[float] = None
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for database storage."""
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'test_file': self.test_file,
+            'test_name': self.test_name,
+            'test_type': self.test_type.value,
+            'status': self.status.value,
+            'execution_time': self.execution_time,
+            'error_message': self.error_message,
+            'stack_trace': self.stack_trace,
+            'coverage_percentage': self.coverage_percentage,
+            'timestamp': self.timestamp.isoformat()
+        }
+
+
+@dataclass
+class TestCoverageData:
+    """Represents test coverage data."""
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    project_id: str = ""
+    file_path: str = ""
+    lines_total: int = 0
+    lines_covered: int = 0
+    lines_missed: int = 0
+    coverage_percentage: float = 0.0
+    branches_total: int = 0
+    branches_covered: int = 0
+    branch_coverage_percentage: float = 0.0
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for database storage."""
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'file_path': self.file_path,
+            'lines_total': self.lines_total,
+            'lines_covered': self.lines_covered,
+            'lines_missed': self.lines_missed,
+            'coverage_percentage': self.coverage_percentage,
+            'branches_total': self.branches_total,
+            'branches_covered': self.branches_covered,
+            'branch_coverage_percentage': self.branch_coverage_percentage,
+            'timestamp': self.timestamp.isoformat()
+        }
+
+
+@dataclass
+class FlakyTestData:
+    """Represents flaky test detection data."""
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    project_id: str = ""
+    test_file: str = ""
+    test_name: str = ""
+    total_runs: int = 0
+    failed_runs: int = 0
+    flakiness_score: float = 0.0  # 0.0 = stable, 1.0 = completely flaky
+    last_failure: Optional[datetime] = None
+    failure_patterns: List[str] = field(default_factory=list)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for database storage."""
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'test_file': self.test_file,
+            'test_name': self.test_name,
+            'total_runs': self.total_runs,
+            'failed_runs': self.failed_runs,
+            'flakiness_score': self.flakiness_score,
+            'last_failure': self.last_failure.isoformat() if self.last_failure else None,
+            'failure_patterns': self.failure_patterns,
+            'timestamp': self.timestamp.isoformat()
+        }
+
+
+@dataclass
+class TestQualityMetrics:
+    """Represents comprehensive test quality metrics."""
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    project_id: str = ""
+    total_tests: int = 0
+    passing_tests: int = 0
+    failing_tests: int = 0
+    skipped_tests: int = 0
+    flaky_tests: int = 0
+    test_success_rate: float = 0.0
+    average_execution_time: float = 0.0
+    code_coverage: float = 0.0
+    branch_coverage: float = 0.0
+    test_density: float = 0.0  # tests per line of code
+    assertion_density: float = 0.0  # assertions per test
+    test_maintainability_score: float = 0.0
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for database storage."""
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'total_tests': self.total_tests,
+            'passing_tests': self.passing_tests,
+            'failing_tests': self.failing_tests,
+            'skipped_tests': self.skipped_tests,
+            'flaky_tests': self.flaky_tests,
+            'test_success_rate': self.test_success_rate,
+            'average_execution_time': self.average_execution_time,
+            'code_coverage': self.code_coverage,
+            'branch_coverage': self.branch_coverage,
+            'test_density': self.test_density,
+            'assertion_density': self.assertion_density,
+            'test_maintainability_score': self.test_maintainability_score,
+            'timestamp': self.timestamp.isoformat()
+        }
+
+
+class AlertType(str, Enum):
+    """Types of quality alerts."""
+    THRESHOLD_VIOLATION = "threshold_violation"
+    TREND_DEGRADATION = "trend_degradation"
+    REGRESSION = "regression"
+    IMPROVEMENT = "improvement"
+    CRITICAL_ISSUE = "critical_issue"
+    SECURITY_VULNERABILITY = "security_vulnerability"
+    PERFORMANCE_DEGRADATION = "performance_degradation"
+
+
+class AlertSeverity(str, Enum):
+    """Severity levels for quality alerts."""
+    CRITICAL = "critical"
+    WARNING = "warning"
+    INFO = "info"
+
+
+class AlertStatus(str, Enum):
+    """Status of quality alerts."""
+    ACTIVE = "active"
+    RESOLVED = "resolved"
+    ACKNOWLEDGED = "acknowledged"
+    SUPPRESSED = "suppressed"
+
+
+@dataclass
+class QualityAlert:
+    """Represents a quality alert."""
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    project_id: str = ""
+    alert_type: AlertType = AlertType.THRESHOLD_VIOLATION
+    severity: AlertSeverity = AlertSeverity.WARNING
+    status: AlertStatus = AlertStatus.ACTIVE
+    metric_name: str = ""
+    current_value: Optional[float] = None
+    threshold_value: Optional[float] = None
+    previous_value: Optional[float] = None
+    regression_percentage: Optional[float] = None
+    trend_direction: Optional[str] = None
+    message: str = ""
+    description: Optional[str] = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    resolved_at: Optional[datetime] = None
+    resolved_by: Optional[str] = None
+    acknowledged_at: Optional[datetime] = None
+    acknowledged_by: Optional[str] = None
+    resolved: bool = False
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for database storage."""
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'alert_type': self.alert_type.value,
+            'severity': self.severity.value,
+            'status': self.status.value,
+            'metric_name': self.metric_name,
+            'current_value': self.current_value,
+            'threshold_value': self.threshold_value,
+            'previous_value': self.previous_value,
+            'regression_percentage': self.regression_percentage,
+            'trend_direction': self.trend_direction,
+            'message': self.message,
+            'description': self.description,
+            'created_at': self.created_at.isoformat(),
+            'resolved_at': self.resolved_at.isoformat() if self.resolved_at else None,
+            'resolved_by': self.resolved_by,
+            'acknowledged_at': self.acknowledged_at.isoformat() if self.acknowledged_at else None,
+            'acknowledged_by': self.acknowledged_by,
+            'resolved': self.resolved
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'QualityAlert':
+        """Create instance from dictionary."""
+        return cls(
+            id=data['id'],
+            project_id=data['project_id'],
+            alert_type=AlertType(data['alert_type']),
+            severity=AlertSeverity(data['severity']),
+            status=AlertStatus(data['status']),
+            metric_name=data['metric_name'],
+            current_value=data.get('current_value'),
+            threshold_value=data.get('threshold_value'),
+            previous_value=data.get('previous_value'),
+            regression_percentage=data.get('regression_percentage'),
+            trend_direction=data.get('trend_direction'),
+            message=data['message'],
+            description=data.get('description'),
+            created_at=datetime.fromisoformat(data['created_at']),
+            resolved_at=datetime.fromisoformat(data['resolved_at']) if data.get('resolved_at') else None,
+            resolved_by=data.get('resolved_by'),
+            acknowledged_at=datetime.fromisoformat(data['acknowledged_at']) if data.get('acknowledged_at') else None,
+            acknowledged_by=data.get('acknowledged_by'),
+            resolved=data.get('resolved', False)
+        )
+
+
+@dataclass
+class NotificationChannel:
+    """Represents a notification channel configuration."""
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    name: str = ""
+    channel_type: str = ""  # email, slack, webhook, websocket
+    configuration: Dict[str, Any] = field(default_factory=dict)
+    enabled: bool = True
+    alert_types: List[AlertType] = field(default_factory=list)
+    severity_levels: List[AlertSeverity] = field(default_factory=list)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for database storage."""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'channel_type': self.channel_type,
+            'configuration': self.configuration,
+            'enabled': self.enabled,
+            'alert_types': [at.value for at in self.alert_types],
+            'severity_levels': [sl.value for sl in self.severity_levels]
+        }
+
+
+class QualityAlertCreate(BaseModel):
+    """Model for creating quality alerts via API."""
+    project_id: str
+    alert_type: AlertType
+    severity: AlertSeverity
+    metric_name: str
+    current_value: Optional[float] = None
+    threshold_value: Optional[float] = None
+    message: str
+    description: Optional[str] = None
+
+
+class QualityAlertUpdate(BaseModel):
+    """Model for updating quality alerts via API."""
+    status: Optional[AlertStatus] = None
+    resolved_by: Optional[str] = None
+    acknowledged_by: Optional[str] = None
+
+
+class NotificationChannelCreate(BaseModel):
+    """Model for creating notification channels via API."""
+    name: str
+    channel_type: str
+    configuration: Dict[str, Any]
+    enabled: bool = True
+    alert_types: List[AlertType] = []
+    severity_levels: List[AlertSeverity] = []

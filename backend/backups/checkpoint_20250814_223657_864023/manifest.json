@@ -1,0 +1,21 @@
+{
+  "checkpoint_id": "20250814_223657_864023",
+  "created_at": "2025-08-14T22:36:57.864078",
+  "files": {
+    "/var/folders/8r/zvbm7sfd12n4gwqtd8p3334h0000gn/T/tmpwcb_8n9_/test_0.py": {
+      "backup_path": "backups/checkpoint_20250814_223657_864023/test_0.py",
+      "original_size": 30,
+      "original_mtime": 1755225417.8638437
+    },
+    "/var/folders/8r/zvbm7sfd12n4gwqtd8p3334h0000gn/T/tmpwcb_8n9_/test_1.py": {
+      "backup_path": "backups/checkpoint_20250814_223657_864023/test_1.py",
+      "original_size": 30,
+      "original_mtime": 1755225417.8639383
+    },
+    "/var/folders/8r/zvbm7sfd12n4gwqtd8p3334h0000gn/T/tmpwcb_8n9_/test_2.py": {
+      "backup_path": "backups/checkpoint_20250814_223657_864023/test_2.py",
+      "original_size": 30,
+      "original_mtime": 1755225417.8640141
+    }
+  }
+}

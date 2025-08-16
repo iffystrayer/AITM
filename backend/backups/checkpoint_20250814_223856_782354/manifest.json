@@ -1,0 +1,11 @@
+{
+  "checkpoint_id": "20250814_223856_782354",
+  "created_at": "2025-08-14T22:38:56.782499",
+  "files": {
+    "/var/folders/8r/zvbm7sfd12n4gwqtd8p3334h0000gn/T/tmpp8e_5zoq/test_module.py": {
+      "backup_path": "backups/checkpoint_20250814_223856_782354/test_module.py",
+      "original_size": 379,
+      "original_mtime": 1755225536.7762716
+    }
+  }
+}
